@@ -47,8 +47,8 @@ PrivacyFilter/
 │   ├── raw/                    # 원본 다운로드 (gitignored)
 │   ├── processed/              # BIO 태깅 통합 포맷
 │   └── synthetic/              # [PROJ_N] 합성 데이터
-├── regex/
-│   └── patterns.py             # 1차 정규식 패턴
+├── pii_regex/
+│   └── patterns.py             # 1차 정규식 패턴 (디렉터리명: 서드파티 regex 패키지와 충돌 회피)
 ├── scripts/
 │   ├── convert_klue.py         # KLUE-NER → 통합 포맷
 │   ├── convert_naver.py        # 네이버+창원대 NER → 통합 포맷
@@ -71,6 +71,37 @@ PrivacyFilter/
 | 네이버+창원대 NER | NLP Challenge 2018 | https://github.com/naver/nlp-challenge |
 | 국립국어원 개체명 말뭉치 | 모두의 말뭉치 | https://corpus.korean.go.kr (신청 필요) |
 | AI-Hub 개인정보 비식별화 | AI-Hub | https://aihub.or.kr (신청 필요) |
+
+## 데이터셋 빌드 & 학습 워크플로
+
+```bash
+# 1) 데이터셋 변환 (KLUE 는 자동 다운로드, 나머지는 data/raw/ 에 사전 배치 필요)
+python scripts/convert_klue.py
+python scripts/convert_naver.py     # data/raw/naver/train.tsv 필요
+python scripts/convert_nikl.py      # data/raw/nikl/*.json 필요
+python scripts/convert_aihub.py     # data/raw/aihub/* 필요
+
+# 2) [PROJ_N] 합성 데이터 생성
+python scripts/generate_proj.py --n 1500
+
+# 3) 통합 + 분할
+python scripts/merge_and_split.py
+
+# 4) 검증
+python verification/verify_all.py
+
+# 5) 학습 (klue/bert-base 백본)
+python scripts/train_ner.py \
+    --train data/processed/train.jsonl \
+    --dev   data/processed/dev.jsonl \
+    --labels data/processed/label_list.txt \
+    --out-dir models/klue_bert_ner \
+    --epochs 3 --batch-size 32 --lr 5e-5
+
+# 6) 추론 (정규식 + NER 2단계 마스킹)
+python scripts/infer_ner.py --model-dir models/klue_bert_ner \
+    --text "내 이름은 김민수, 010-1234-5678."
+```
 
 ## 평가 지표
 

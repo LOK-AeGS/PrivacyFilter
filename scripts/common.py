@@ -28,6 +28,27 @@ def map_label(raw_label: str, mapping: Dict[str, str]) -> str:
     return mapping.get(raw_label, "O")
 
 
+def normalize_bio(tags: List[str]) -> List[str]:
+    """BIO 시퀀스에서 I-X 가 B-X/I-X(같은 라벨) 다음에 오지 않으면 B-X 로 강제 변환.
+
+    원본 데이터셋에 종종 보이는 라벨링 잡음을 수정한다.
+    """
+    out: List[str] = []
+    prev_label: str | None = None
+    for t in tags:
+        if t == "O":
+            out.append("O")
+            prev_label = None
+            continue
+        pos, _, lbl = t.partition("-")
+        if pos == "I" and lbl != prev_label:
+            out.append(f"B-{lbl}")
+        else:
+            out.append(t)
+        prev_label = lbl
+    return out
+
+
 def bio(position: str, label: str) -> str:
     """('B', 'PERSON') → 'B-PERSON', ('I', 'O') → 'O'."""
     if label == "O" or label == "__REGEX__":
@@ -74,7 +95,7 @@ def char_bio_to_word_bio(
             tags.append(bio(position, mapped))
         words.append(word)
 
-    return words, tags
+    return words, normalize_bio(tags)
 
 
 def spans_to_word_bio(

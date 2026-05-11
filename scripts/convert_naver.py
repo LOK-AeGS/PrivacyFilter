@@ -25,7 +25,7 @@ import argparse
 from pathlib import Path
 from typing import Iterator, List, Tuple
 
-from common import REPO_ROOT, bio, load_label_mapping, write_jsonl
+from common import REPO_ROOT, bio, load_label_mapping, normalize_bio, write_jsonl
 
 
 def iter_sentences(path: Path) -> Iterator[Tuple[List[str], List[str]]]:
@@ -86,7 +86,7 @@ def main() -> None:
 
     records = []
     for tokens, tags in iter_sentences(args.in_path):
-        new_tags = [remap_tag(t, label_map) for t in tags]
+        new_tags = normalize_bio([remap_tag(t, label_map) for t in tags])
         records.append({"tokens": tokens, "tags": new_tags, "source": "naver"})
 
     n = write_jsonl(records, args.out_path)

@@ -103,7 +103,32 @@ python scripts/infer_ner.py --model-dir models/klue_bert_ner \
     --text "내 이름은 김민수, 010-1234-5678."
 ```
 
-## 1차 학습 결과 (KLUE-BERT-base, CPU)
+## 학습 결과 (KLUE-BERT-base, CPU)
+
+### Full-scale 학습 (최신, [상세 결과](results/full_klue_bert_2ep.md))
+
+**설정**: Train 23,808 (KLUE 21k + 합성 2.8k) / Dev 5,350 / Epochs 2 / Batch 16 / lr 5e-5
+**학습 시간**: 1시간 24분 (CPU 20코어)
+
+| 라벨 | F1 | Support |
+|---|---|---|
+| **PROJ_N** | **0.9986** | 348 |
+| PERSON | 0.9512 | 4,188 |
+| ORG | 0.8612 | 2,032 |
+| LOCATION | 0.8424 | 1,513 |
+| **micro avg** | **0.9100** | 8,081 |
+
+(Precision 0.9104 / Recall 0.9097 / eval_loss 0.0546)
+
+### 실험 비교
+
+| 실험 | 학습량 | 시간 | micro F1 | PROJ_N |
+|---|---|---|---|---|
+| KLUE-biased 3k | 3,000 (KLUE only) | 10분 | 0.870 | 0.000 |
+| Balanced 4.2k | 3k KLUE + 1.2k 합성 | 26분 | 0.883 | 0.983 |
+| **Full 23.8k** | **21k KLUE + 2.8k 합성** | **84분** | **0.910** | **0.999** |
+
+### 1차 학습 결과 (KLUE-BERT-base, CPU)
 
 **설정**
 - 백본: `klue/bert-base`

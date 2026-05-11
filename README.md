@@ -103,6 +103,41 @@ python scripts/infer_ner.py --model-dir models/klue_bert_ner \
     --text "내 이름은 김민수, 010-1234-5678."
 ```
 
+## 1차 학습 결과 (KLUE-BERT-base, CPU)
+
+**설정**
+- 백본: `klue/bert-base`
+- Train: KLUE 3,000 + 합성 PROJ_N 1,200 = **4,200 문장** (`scripts/stratified_sample.py` 로 균형 추출)
+- Dev: 전체 5,150 문장 (KLUE 5,000 + 합성 150)
+- Epochs: 3, batch 16, lr 5e-5
+- 학습 시간: **26분 22초** (CPU 20코어, ~8 samples/sec)
+
+**Dev F1 (entity-level, seqeval)**
+| 라벨 | F1 | Support |
+|---|---|---|
+| **PROJ_N** | **0.9834** | 148 |
+| PERSON | 0.9380 | 4,188 |
+| ORG | 0.8235 | 2,032 |
+| LOCATION | 0.8039 | 1,513 |
+| **micro avg** | **0.8829** | 7,881 |
+
+**균형 학습 효과** — KLUE-편향 3,000 vs balanced 4,200:
+| 실험 | 전체 F1 | PROJ_N F1 |
+|---|---|---|
+| KLUE-biased | 0.870 | **0.000** |
+| Balanced | **0.883** | **0.983** |
+
+**End-to-end 마스킹 예시**
+```
+원문:  안녕하세요. 저는 단국대학교 컴퓨터공학과 김민수입니다.
+       차세대 인사관리시스템 프로젝트의 PM을 맡고 있고, 사무실은 서울 강남구입니다.
+       문의는 010-1234-5678 또는 minsu@example.com 으로 주세요.
+
+마스킹: 안녕하세요. 저는 [ORG] 컴퓨터공학과 [PERSON]입니다.
+       [PROJ_N]의 PM을 맡고 있고, 사무실은 [LOCATION]입니다.
+       문의는 [PHONE] 또는 [EMAIL] 으로 주세요.
+```
+
 ## 평가 지표
 
 - **마스킹 정확도**: F1-score / Recall (KLUE-NER 벤치마크)

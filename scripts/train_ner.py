@@ -206,15 +206,28 @@ def main() -> None:
         seed=args.seed,
     )
 
-    trainer = Trainer(
-        model=model,
-        args=targs,
-        train_dataset=train_tok,
-        eval_dataset=dev_tok,
-        tokenizer=tokenizer,
-        data_collator=collator,
-        compute_metrics=metrics_fn,
-    )
+    # transformers 5.x 부터 `tokenizer` 인자가 `processing_class` 로 이름 변경됨.
+    # 4.x 호환을 위해 try/except 으로 분기.
+    try:
+        trainer = Trainer(
+            model=model,
+            args=targs,
+            train_dataset=train_tok,
+            eval_dataset=dev_tok,
+            processing_class=tokenizer,
+            data_collator=collator,
+            compute_metrics=metrics_fn,
+        )
+    except TypeError:
+        trainer = Trainer(
+            model=model,
+            args=targs,
+            train_dataset=train_tok,
+            eval_dataset=dev_tok,
+            tokenizer=tokenizer,
+            data_collator=collator,
+            compute_metrics=metrics_fn,
+        )
 
     trainer.train()
     final_metrics = trainer.evaluate()

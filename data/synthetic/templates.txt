@@ -1,0 +1,65 @@
+# [PROJ_N] 학습용 템플릿
+# 형식: <PROJ>{proj}</PROJ> 마크업으로 엔티티 범위 명시. 다른 슬롯도 지원.
+#       {proj}        — 프로젝트명
+#       {person}      — 인명
+#       {org}         — 기관명
+#       {loc}         — 지명
+# 한 줄에 하나. 주석은 '#'.
+
+# === proj 단독 ===
+<PROJ>{proj}</PROJ>을 진행하고 있습니다.
+<PROJ>{proj}</PROJ>를 진행 중입니다.
+현재 <PROJ>{proj}</PROJ> 단계에 있습니다.
+<PROJ>{proj}</PROJ>의 일정을 정리해 줘.
+<PROJ>{proj}</PROJ> 관련 보고서를 작성 중이야.
+<PROJ>{proj}</PROJ>에 대한 의견을 부탁드립니다.
+<PROJ>{proj}</PROJ>이 어느 단계인지 알려주세요.
+<PROJ>{proj}</PROJ>의 ROI를 계산해 주세요.
+<PROJ>{proj}</PROJ>와 관련된 위험 요소를 정리해 주세요.
+<PROJ>{proj}</PROJ>의 주요 마일스톤은 무엇인가요?
+<PROJ>{proj}</PROJ>에서 사용할 기술 스택을 추천해줘.
+<PROJ>{proj}</PROJ> 회의록 좀 요약해 줄래?
+<PROJ>{proj}</PROJ> 진행 상황을 공유해 주세요.
+<PROJ>{proj}</PROJ>의 KPI를 설정해 줘.
+<PROJ>{proj}</PROJ>에서 막힌 부분을 도와줘.
+<PROJ>{proj}</PROJ>의 예산을 검토해 주세요.
+오늘 <PROJ>{proj}</PROJ> 킥오프 미팅이 있어요.
+<PROJ>{proj}</PROJ> 관련해서 코드 리뷰 부탁해.
+<PROJ>{proj}</PROJ>의 산출물을 정리해 주세요.
+<PROJ>{proj}</PROJ>은 다음 분기에 끝날 예정입니다.
+<PROJ>{proj}</PROJ>의 이슈 트래킹은 어떻게 하나요?
+<PROJ>{proj}</PROJ> 백로그를 우선순위 정리해 줘.
+<PROJ>{proj}</PROJ>에 들어가는 인력 산정 도와줘.
+<PROJ>{proj}</PROJ>의 변경 요청 처리 절차를 설명해 줘.
+<PROJ>{proj}</PROJ> 일정이 지연될 것 같아.
+
+# === proj + person ===
+<PROJ>{proj}</PROJ>는 <PER>{person}</PER> 책임자가 맡고 있어요.
+<PER>{person}</PER>씨가 <PROJ>{proj}</PROJ>의 PM입니다.
+<PROJ>{proj}</PROJ>의 담당자는 <PER>{person}</PER>입니다.
+오늘 <PER>{person}</PER>과 <PROJ>{proj}</PROJ> 미팅을 했어요.
+<PER>{person}</PER>이 작성한 <PROJ>{proj}</PROJ> 보고서를 검토해 줘.
+
+# === proj + org ===
+<ORG>{org}</ORG>의 <PROJ>{proj}</PROJ>에 대해 소개해 주세요.
+<ORG>{org}</ORG>에서 <PROJ>{proj}</PROJ>를 발주했습니다.
+<PROJ>{proj}</PROJ>는 <ORG>{org}</ORG>와 협력해서 진행됩니다.
+<ORG>{org}</ORG>의 <PROJ>{proj}</PROJ> 입찰 자료를 검토해 줘.
+<PROJ>{proj}</PROJ> 컨소시엄에 <ORG>{org}</ORG>이 참여합니다.
+
+# === proj + loc ===
+<LOC>{loc}</LOC> 지역의 <PROJ>{proj}</PROJ> 추진 현황을 알려주세요.
+<LOC>{loc}</LOC>에서 <PROJ>{proj}</PROJ> 현장 실사를 진행했어요.
+<PROJ>{proj}</PROJ>의 시범 도시는 <LOC>{loc}</LOC>입니다.
+
+# === 부정 (PROJ 키워드 있지만 엔티티 없음) ===
+프로젝트 매니지먼트가 무엇인가요?
+시스템이라는 단어의 어원이 궁금합니다.
+사업 계획서 작성 요령을 알려주세요.
+연구과제 신청 절차가 어떻게 되나요?
+프로젝트 관리 도구 추천해 주세요.
+시스템 개발 방법론 종류를 알려줘.
+TF 운영 모범 사례가 있을까요?
+사업 타당성 분석 방법이 궁금합니다.
+프로젝트 관리 자격증 종류 알려줘.
+시스템 통합 개념 설명해 줘.

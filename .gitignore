@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# Datasets (raw downloads)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*.jsonl
+data/processed/*.tsv
+data/processed/_tmp/
+
+# Model artifacts
+models/
+*.bin
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+wandb/
+runs/
+
+# Claude / agent artifacts
+CLAUDE.md
+.claude/

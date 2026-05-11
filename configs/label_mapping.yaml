@@ -1,0 +1,77 @@
+# 데이터셋별 원본 라벨 → 통합 마스킹 토큰 매핑
+#
+# 통합 토큰 (NER 학습 대상): PERSON, ORG, LOCATION, PROJ_N
+# 정규식 토큰 (NER 비대상, 후처리에서 제거): RRN, PHONE, EMAIL, CARD, ACCOUNT, IP, API_KEY
+#
+# NER 학습은 BIO 스키마(B-PERSON, I-PERSON, ..., O)로 수행한다.
+# 매핑이 없는 라벨은 'O' 처리하고, conflict_check.py 에서 정규식과 겹치는 라벨은 제거된다.
+
+target_labels:
+  - PERSON
+  - ORG
+  - LOCATION
+  - PROJ_N
+
+# ---------------------------------------------------------------
+# KLUE-NER (https://klue-benchmark.com)
+# 원본: PS(person), LC(location), OG(organization), DT(date), TI(time), QT(quantity)
+# ---------------------------------------------------------------
+klue:
+  PS: PERSON
+  LC: LOCATION
+  OG: ORG
+  DT: O   # 날짜는 마스킹 대상 아님
+  TI: O
+  QT: O
+
+# ---------------------------------------------------------------
+# 네이버+창원대 NER (NLP Challenge 2018)
+# 원본: PER, ORG, LOC, POH(기타 고유명), DAT, TIM, DUR, MNY, PNT, NOH
+# ---------------------------------------------------------------
+naver:
+  PER: PERSON
+  ORG: ORG
+  LOC: LOCATION
+  POH: O   # 기타 고유명 — 불확실해서 제외
+  DAT: O
+  TIM: O
+  DUR: O
+  MNY: O
+  PNT: O
+  NOH: O
+
+# ---------------------------------------------------------------
+# 국립국어원 개체명 말뭉치 (모두의 말뭉치 NER)
+# 원본 세분화 라벨 (대표 prefix만 매핑)
+#   PS_*  : 인물
+#   OGG_* : 조직
+#   LCP_* / LCG_* : 지명
+#   AF_*, CV_*, DT_*, TI_*, QT_*, EV_*, AM_*, PT_*, MT_*, TM_* 등 : 대상 외
+# ---------------------------------------------------------------
+nikl_prefix:
+  PS: PERSON
+  OG: ORG
+  LC: LOCATION
+  LCP: LOCATION
+  LCG: LOCATION
+  OGG: ORG
+  # 그 외 prefix 는 모두 O
+
+# ---------------------------------------------------------------
+# AI-Hub 개인정보 비식별화 데이터
+# 자체 PII 스키마. 정규식 토큰 검증·테스트셋 용도.
+# (NER 학습엔 제외, 평가용으로만 사용)
+# ---------------------------------------------------------------
+aihub:
+  NAME: PERSON
+  ORGANIZATION: ORG
+  ADDRESS: LOCATION
+  PROJECT: PROJ_N
+  # 정규식 처리 대상은 NER 라벨에서 제거
+  RRN: __REGEX__
+  PHONE: __REGEX__
+  EMAIL: __REGEX__
+  CARD: __REGEX__
+  ACCOUNT: __REGEX__
+  IP: __REGEX__
+  API_KEY: __REGEX__

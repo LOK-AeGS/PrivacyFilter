@@ -25,20 +25,25 @@ klue:
   QT: O
 
 # ---------------------------------------------------------------
-# 네이버+창원대 NER (NLP Challenge 2018)
-# 원본: PER, ORG, LOC, POH(기타 고유명), DAT, TIM, DUR, MNY, PNT, NOH
+# 네이버+창원대 NER (NLP Challenge 2018) — github.com/naver/nlp-challenge
+# 실제 데이터 라벨: PER, ORG, LOC, CVL, DAT, TIM, NUM, AFW, ANM, PLT, MAT, EVT, FLD, TRM
+# 태그 형식: LABEL_B / LABEL_I / `-`
 # ---------------------------------------------------------------
 naver:
   PER: PERSON
   ORG: ORG
   LOC: LOCATION
-  POH: O   # 기타 고유명 — 불확실해서 제외
+  CVL: O    # 문명/직책 — 마스킹 대상 아님
   DAT: O
   TIM: O
-  DUR: O
-  MNY: O
-  PNT: O
-  NOH: O
+  NUM: O
+  AFW: O    # 인공물
+  ANM: O    # 동물
+  PLT: O    # 식물
+  MAT: O    # 물질
+  EVT: O    # 사건
+  FLD: O    # 분야
+  TRM: O    # 용어
 
 # ---------------------------------------------------------------
 # 국립국어원 개체명 말뭉치 (모두의 말뭉치 NER)

@@ -1,13 +1,14 @@
 """네이버+창원대 NER (NLP Challenge 2018) → 통합 BIO JSONL.
 
 원본 포맷 (TSV, 어절 단위):
-    1  비토리오  B-PER
-    2  양일      I-PER
-    3  만에      O
+    1  비토리오  PER_B
+    2  양일      DAT_B
+    3  만에      -
     ...
     (빈 줄로 문장 구분)
 
-원본 라벨: PER, ORG, LOC, POH, DAT, TIM, DUR, MNY, PNT, NOH
+태그 형식: `LABEL_B` / `LABEL_I` / `-` (= O)
+원본 라벨: PER, ORG, LOC, CVL, DAT, TIM, NUM, AFW, ANM, PLT, MAT, EVT, FLD, TRM
 
 준비:
     https://github.com/naver/nlp-challenge 의 NER 데이터 (train.tsv) 를
@@ -55,9 +56,17 @@ def iter_sentences(path: Path) -> Iterator[Tuple[List[str], List[str]]]:
 
 
 def remap_tag(tag: str, label_map: dict) -> str:
+    """tag 가 'PER_B' (네이버), 'B-PER' (표준), 'O', '-' 형태 모두 지원."""
     if tag == "O" or tag == "-":
         return "O"
-    pos, _, raw = tag.partition("-")
+    if "_" in tag and tag.rsplit("_", 1)[-1] in ("B", "I"):
+        # 네이버 포맷: LABEL_B / LABEL_I
+        raw, pos = tag.rsplit("_", 1)
+    elif "-" in tag and tag.split("-", 1)[0] in ("B", "I"):
+        # 표준 BIO: B-LABEL / I-LABEL
+        pos, _, raw = tag.partition("-")
+    else:
+        return "O"
     mapped = label_map.get(raw, "O")
     return bio(pos, mapped) if mapped != "O" else "O"
 

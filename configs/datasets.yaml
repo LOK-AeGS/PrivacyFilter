@@ -1,0 +1,83 @@
+# 데이터셋 레지스트리 — 선언적 설정.
+#
+# 새 데이터셋 추가 절차:
+#   1. scripts/convert_<NAME>.py 작성 (raw → JSONL)
+#   2. configs/label_mapping.yaml 에 라벨 매핑 추가
+#   3. 본 파일의 sources 에 <NAME> 항목 추가
+#   4. python scripts/build_dataset.py 실행
+#
+# 각 source 설정:
+#   enabled       : true/false (false 면 빌드에서 제외)
+#   converter     : 변환 스크립트 모듈명 (없으면 사전 변환된 파일 사용 가정)
+#   files         : split → JSONL 경로. 사전 분할된 데이터셋용.
+#   single_file   : 단일 JSONL 경로. split_ratios 와 함께 사용.
+#   split_ratios  : {train: x, dev: y, test: z} — single_file 의 무작위 분할 비율
+#   filters       : 본 소스에 적용할 필터 이름 리스트 (순서대로 실행)
+#   weight        : 학습 시 oversampling 배수 (기본 1)
+
+sources:
+  klue:
+    enabled: true
+    converter: scripts/convert_klue.py
+    files:
+      train: data/processed/klue_train.jsonl
+      dev:   data/processed/klue_dev.jsonl
+    filters: []
+    weight: 1
+
+  naver:
+    enabled: true
+    converter: scripts/convert_naver.py
+    single_file: data/processed/naver_train.jsonl
+    split_ratios: { train: 1.0 }
+    filters:
+      - drop_url_entities
+      - drop_excessive_special_chars
+      - drop_too_long_entities
+      - strip_trailing_punctuation
+    weight: 1
+
+  nikl:
+    enabled: false   # 사용자 신청·다운로드 필요 (data/raw/nikl/)
+    converter: scripts/convert_nikl.py
+    single_file: data/processed/nikl.jsonl
+    split_ratios: { train: 0.8, dev: 0.1, test: 0.1 }
+    filters:
+      - drop_excessive_special_chars
+    weight: 1
+
+  aihub:
+    enabled: false   # 사용자 신청·다운로드 필요 (data/raw/aihub/)
+    converter: scripts/convert_aihub.py
+    single_file: data/processed/aihub.jsonl
+    split_ratios: { test: 1.0 }   # 평가용 only
+    filters: []
+    weight: 1
+
+  synthetic_proj:
+    enabled: true
+    converter: scripts/generate_proj.py
+    single_file: data/processed/proj_synthetic.jsonl
+    split_ratios: { train: 0.8, dev: 0.1, test: 0.1 }
+    filters: []
+    weight: 1
+
+
+# 파이프라인 사후 처리
+pipeline:
+  # 모든 train 데이터 통합 후 라벨 노이즈 정제
+  label_noise_cleanup:
+    enabled: true
+    apply_to: train             # train 만 정제 (dev/test 는 평가 정직성 위해 보존)
+    minority_threshold: 0.15
+    min_count: 5
+
+  # 최종 산출물 경로
+  outputs:
+    train:      data/processed/train.jsonl
+    dev:        data/processed/dev.jsonl
+    test:       data/processed/test.jsonl
+    label_list: data/processed/label_list.txt
+
+  # 무작위 분할 시드
+  seed: 42

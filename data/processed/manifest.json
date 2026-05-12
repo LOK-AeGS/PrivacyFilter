@@ -1,0 +1,50 @@
+{
+  "config": "configs\\datasets.yaml",
+  "sources": [
+    {
+      "source": "klue",
+      "train": 21008,
+      "dev": 5000,
+      "test": 0,
+      "entities": {
+        "LOCATION": 6254,
+        "ORG": 7925,
+        "PERSON": 13600
+      }
+    },
+    {
+      "source": "naver",
+      "train": 90000,
+      "dev": 0,
+      "test": 0,
+      "entities": {
+        "ORG": 40469,
+        "PERSON": 43164,
+        "LOCATION": 20884
+      }
+    },
+    {
+      "source": "synthetic_proj",
+      "train": 2800,
+      "dev": 350,
+      "test": 350,
+      "entities": {
+        "PROJ_N": 2784,
+        "PERSON": 197,
+        "ORG": 188,
+        "LOCATION": 139
+      }
+    }
+  ],
+  "totals": {
+    "train": 113808,
+    "dev": 5350,
+    "test": 350
+  },
+  "outputs": {
+    "train": "data/processed/train.jsonl",
+    "dev": "data/processed/dev.jsonl",
+    "test": "data/processed/test.jsonl",
+    "label_list": "data/processed/label_list.txt"
+  }
+}

@@ -13,14 +13,14 @@
       }
     },
     {
-      "source": "naver",
-      "train": 90000,
+      "source": "nikl",
+      "train": 80000,
       "dev": 0,
       "test": 0,
       "entities": {
-        "ORG": 40469,
-        "PERSON": 43164,
-        "LOCATION": 20884
+        "ORG": 31325,
+        "PERSON": 13858,
+        "LOCATION": 22350
       }
     },
     {
@@ -37,7 +37,7 @@
     }
   ],
   "totals": {
-    "train": 113808,
+    "train": 103808,
     "dev": 5350,
     "test": 350
   },

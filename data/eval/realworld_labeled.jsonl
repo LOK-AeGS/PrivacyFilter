@@ -1,0 +1,30 @@
+{"tokens": ["안녕하세요,", "저는", "단국대학교", "컴퓨터공학과", "김민수입니다."], "tags": ["O", "O", "B-ORG", "I-ORG", "B-PERSON"], "source": "realworld"}
+{"tokens": ["삼성전자", "DX부문에서", "근무하는", "박서준", "책임입니다."], "tags": ["B-ORG", "O", "O", "B-PERSON", "O"], "source": "realworld"}
+{"tokens": ["차세대", "ERP", "시스템", "도입", "프로젝트의", "일정을", "정리해", "줘."], "tags": ["B-PROJ_N", "I-PROJ_N", "I-PROJ_N", "I-PROJ_N", "I-PROJ_N", "O", "O", "O"], "source": "realworld"}
+{"tokens": ["회의는", "서울", "강남구", "본사에서", "진행됐습니다."], "tags": ["O", "B-LOCATION", "I-LOCATION", "O", "O"], "source": "realworld"}
+{"tokens": ["LG", "CNS와", "협력해서", "스마트팩토리", "구축", "사업을", "진행", "중입니다."], "tags": ["B-ORG", "I-ORG", "O", "B-PROJ_N", "I-PROJ_N", "I-PROJ_N", "O", "O"], "source": "realworld"}
+{"tokens": ["환자", "정유진씨가", "단국대학교병원", "응급실에", "내원했습니다."], "tags": ["O", "B-PERSON", "B-ORG", "O", "O"], "source": "realworld"}
+{"tokens": ["부산", "해운대구에서", "열린", "행사에", "최도현", "팀장이", "참석했어요."], "tags": ["B-LOCATION", "I-LOCATION", "O", "O", "B-PERSON", "O", "O"], "source": "realworld"}
+{"tokens": ["한지원", "연구원이", "AI", "챗봇", "도입", "사업의", "코드를", "리뷰했습니다."], "tags": ["B-PERSON", "O", "B-PROJ_N", "I-PROJ_N", "I-PROJ_N", "I-PROJ_N", "O", "O"], "source": "realworld"}
+{"tokens": ["카카오의", "옴니채널", "통합", "프로젝트", "자료가", "유출됐습니다."], "tags": ["B-ORG", "B-PROJ_N", "I-PROJ_N", "I-PROJ_N", "O", "O"], "source": "realworld"}
+{"tokens": ["강태우", "매니저는", "현대자동차", "울산공장으로", "발령났습니다."], "tags": ["B-PERSON", "O", "B-ORG", "O", "O"], "source": "realworld"}
+{"tokens": ["프로젝트", "관리", "방법론에", "대해", "알려줘."], "tags": ["O", "O", "O", "O", "O"], "source": "realworld"}
+{"tokens": ["애자일과", "워터폴의", "차이가", "뭐야?"], "tags": ["O", "O", "O", "O"], "source": "realworld"}
+{"tokens": ["네이버", "클로바", "팀의", "윤예린", "리드가", "발표를", "맡았습니다."], "tags": ["B-ORG", "I-ORG", "O", "B-PERSON", "O", "O", "O"], "source": "realworld"}
+{"tokens": ["경기", "성남시", "분당구에", "신규", "지사를", "설립할", "예정입니다."], "tags": ["B-LOCATION", "I-LOCATION", "I-LOCATION", "O", "O", "O", "O"], "source": "realworld"}
+{"tokens": ["국민은행과", "신한은행이", "공동으로", "마이데이터", "사업에", "참여합니다."], "tags": ["B-ORG", "B-ORG", "O", "B-PROJ_N", "I-PROJ_N", "O"], "source": "realworld"}
+{"tokens": ["김도윤", "교수님께", "이메일", "보냈는데", "답장이", "없어요."], "tags": ["B-PERSON", "O", "O", "O", "O", "O"], "source": "realworld"}
+{"tokens": ["대전", "유성구", "한국전자통신연구원에서", "인턴을", "했습니다."], "tags": ["B-LOCATION", "I-LOCATION", "B-ORG", "O", "O"], "source": "realworld"}
+{"tokens": ["크래프톤", "신작", "게임의", "클라이언트", "리뉴얼", "프로젝트가", "지연됐어요."], "tags": ["B-ORG", "O", "O", "B-PROJ_N", "I-PROJ_N", "I-PROJ_N", "O"], "source": "realworld"}
+{"tokens": ["오늘", "회의", "안건이", "뭐였더라?"], "tags": ["O", "O", "O", "O"], "source": "realworld"}
+{"tokens": ["임건우", "사원과", "함께", "인천", "송도", "출장을", "다녀왔습니다."], "tags": ["B-PERSON", "O", "O", "B-LOCATION", "I-LOCATION", "O", "O"], "source": "realworld"}
+{"tokens": ["포스코", "광양제철소", "디지털", "트윈", "공장", "구축이", "완료됐습니다."], "tags": ["B-ORG", "B-LOCATION", "B-PROJ_N", "I-PROJ_N", "I-PROJ_N", "I-PROJ_N", "O"], "source": "realworld"}
+{"tokens": ["연세대학교", "신촌캠퍼스에서", "세미나가", "열립니다."], "tags": ["B-ORG", "O", "O", "O"], "source": "realworld"}
+{"tokens": ["손영빈", "대리가", "작성한", "보고서를", "검토해", "주세요."], "tags": ["B-PERSON", "O", "O", "O", "O", "O"], "source": "realworld"}
+{"tokens": ["SK하이닉스", "이천캠퍼스의", "반도체", "공정", "최적화", "연구가", "시작됐습니다."], "tags": ["B-ORG", "B-LOCATION", "B-PROJ_N", "I-PROJ_N", "I-PROJ_N", "O", "O"], "source": "realworld"}
+{"tokens": ["광주광역시청과", "전남대학교가", "스마트시티", "조성", "사업을", "추진합니다."], "tags": ["B-ORG", "B-ORG", "B-PROJ_N", "I-PROJ_N", "I-PROJ_N", "O"], "source": "realworld"}
+{"tokens": ["내일", "점심", "약속", "기억하지?"], "tags": ["O", "O", "O", "O"], "source": "realworld"}
+{"tokens": ["조은서", "선임은", "한화시스템", "방산", "부문", "소속입니다."], "tags": ["B-PERSON", "O", "B-ORG", "O", "O", "O"], "source": "realworld"}
+{"tokens": ["제주", "서귀포시에서", "원격근무", "인프라", "구축", "프로젝트를", "테스트", "중이에요."], "tags": ["B-LOCATION", "I-LOCATION", "B-PROJ_N", "I-PROJ_N", "I-PROJ_N", "I-PROJ_N", "O", "O"], "source": "realworld"}
+{"tokens": ["배수민", "팀장님이", "넥슨", "본사로", "이직하셨대요."], "tags": ["B-PERSON", "O", "B-ORG", "O", "O"], "source": "realworld"}
+{"tokens": ["회사", "복지", "제도가", "어떻게", "되나요?"], "tags": ["O", "O", "O", "O", "O"], "source": "realworld"}

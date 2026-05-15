@@ -14,13 +14,13 @@
     },
     {
       "source": "nikl",
-      "train": 80000,
+      "train": 315697,
       "dev": 0,
       "test": 0,
       "entities": {
-        "ORG": 31325,
-        "PERSON": 13858,
-        "LOCATION": 22350
+        "PERSON": 55149,
+        "ORG": 124781,
+        "LOCATION": 87688
       }
     },
     {
@@ -37,7 +37,7 @@
     }
   ],
   "totals": {
-    "train": 103808,
+    "train": 339505,
     "dev": 5350,
     "test": 350
   },

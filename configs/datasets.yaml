@@ -38,10 +38,10 @@ sources:
     weight: 1
 
   nikl:
-    enabled: true   # 국립국어원 개체명 말뭉치 — KLUE 와 같은 표준 어노테이션, 도메인 shift 적음
+    enabled: true   # 국립국어원 개체명 말뭉치 — iter10 에서 전체 316k 사용
     converter: scripts/convert_nikl.py
-    single_file: data/processed/nikl_sample.jsonl   # 전체 316k 중 80k subsample (학습 시간)
-    split_ratios: { train: 1.0 }   # 전량 train (dev/test 는 KLUE 유지 — 평가 정직성)
+    single_file: data/processed/nikl.jsonl   # 전체 316k (iter9 는 nikl_sample 80k 사용)
+    split_ratios: { train: 1.0 }   # 전량 train (dev/test 는 KLUE 유지)
     filters:
       - drop_excessive_special_chars
     weight: 1

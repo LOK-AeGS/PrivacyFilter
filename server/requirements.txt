@@ -1,0 +1,4 @@
+# Phase 1 서버 추가 의존성 (기존 requirements.txt 위에)
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.5.0

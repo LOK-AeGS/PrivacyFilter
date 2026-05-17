@@ -19,6 +19,8 @@ data/processed/_tmp/
 
 # Model artifacts
 models/
+onnx_models/**/*.onnx
+onnx_models/**/model.onnx_data
 *.bin
 *.safetensors
 *.ckpt

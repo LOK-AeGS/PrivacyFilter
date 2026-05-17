@@ -1,0 +1,15 @@
+{
+  "bos_token": "[CLS]",
+  "cls_token": "[CLS]",
+  "do_basic_tokenize": true,
+  "do_lower_case": false,
+  "eos_token": "[SEP]",
+  "mask_token": "[MASK]",
+  "model_max_length": 512,
+  "pad_token": "[PAD]",
+  "sep_token": "[SEP]",
+  "strip_accents": null,
+  "tokenize_chinese_chars": true,
+  "tokenizer_class": "BertTokenizerFast",
+  "unk_token": "[UNK]"
+}

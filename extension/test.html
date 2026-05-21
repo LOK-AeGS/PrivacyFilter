@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>PrivacyFilter 테스트</title>
+  <style>
+    body { font-family: -apple-system, "Malgun Gothic", sans-serif; max-width: 760px; margin: 24px auto; padding: 0 16px; color:#1a1a1a; }
+    h1 { color:#10a37f; font-size: 20px; }
+    textarea { width: 100%; height: 120px; font-size: 14px; padding: 8px; box-sizing: border-box; }
+    button { background:#10a37f; color:#fff; border:0; padding:8px 18px; border-radius:6px; cursor:pointer; font-size:14px; }
+    button:disabled { background:#aaa; }
+    .out { white-space: pre-wrap; background:#f6f8fa; border:1px solid #e1e4e8; border-radius:6px; padding:10px; margin-top:8px; font-size:14px; }
+    table { border-collapse: collapse; width:100%; margin-top:8px; font-size:13px; }
+    th,td { border:1px solid #e1e4e8; padding:4px 8px; text-align:left; }
+    .lat { color:#666; font-size:13px; margin-top:6px; }
+    #status { font-size:13px; color:#666; }
+  </style>
+</head>
+<body>
+  <h1>🔒 PrivacyFilter — 브라우저 추론 테스트</h1>
+  <p id="status">모델 로딩 중…</p>
+  <textarea id="input">안녕하세요, 단국대학교 김민수입니다. 차세대 ERP 시스템 도입 일정과 제 번호 010-1234-5678 로 연락 부탁드립니다.</textarea>
+  <p>
+    <button id="maskBtn" disabled>마스킹</button>
+    <button id="benchBtn" disabled>지연시간 벤치(20회)</button>
+  </p>
+  <h3>마스킹 결과</h3>
+  <div class="out" id="masked"></div>
+  <div class="lat" id="latency"></div>
+  <h3>스팬</h3>
+  <div id="spans"></div>
+  <h3>복원 (왕복 검증)</h3>
+  <div class="out" id="restored"></div>
+  <script type="module" src="test.js"></script>
+</body>
+</html>

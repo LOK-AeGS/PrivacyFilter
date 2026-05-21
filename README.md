@@ -200,6 +200,67 @@ python scripts/infer_ner.py --model-dir models/my_model \
 - [`results/FINAL_ANALYSIS.md`](results/FINAL_ANALYSIS.md) — 6 iteration 종합
 - [`results/data_audit_and_hypothesis.md`](results/data_audit_and_hypothesis.md) — 데이터 품질·가설 검증
 
+## Chrome 확장 프로그램 (로컬 마스킹)
+
+별도 서버 없이 **브라우저 안에서** 마스킹/복원이 모두 끝나는 온디바이스 확장.
+NER 모델을 ONNX(int8, 110MB)로 변환해 [Transformers.js](https://github.com/huggingface/transformers.js)(ONNX Runtime Web/WASM)로 추론한다.
+
+### 동작 (ChatGPT 기준)
+```
+입력 작성 → (Enter/전송 가로채기) → 정규식+NER 마스킹 → 가명으로 치환 후 전송
+ChatGPT 응답 → (DOM 감시) → 가명 → 원본 복원 → 사용자에게 표시
+```
+가명(`단국대학교→강원대학교`, `김민수→이지수`)을 쓰므로 LLM 응답 품질이 보존되고,
+세션(탭)별로 같은 entity 는 같은 가명으로 일관 매핑된다. 정규식 토큰은 더미값(`010-0000-0001` 등)으로 치환.
+
+### 구조
+```
+extension/
+├── manifest.json          # MV3
+├── content.js             # ChatGPT DOM 훅 (전송 가로채기 + 응답 복원)
+├── background.js          # service worker — offscreen 릴레이 (sessionId=탭ID)
+├── offscreen.html/js      # Transformers.js WASM 추론 호스트
+├── popup.html/js          # on/off 토글 + 상태
+├── test.html/js           # ChatGPT 없이 추론 검증 + 지연 벤치 페이지
+├── lib/
+│   ├── pii_regex.js        # 7종 정규식 (patterns.py 포팅)
+│   ├── aliases.js          # 가명 풀 (aliases.yaml 포팅)
+│   ├── alias_manager.js    # 세션 일관 매핑
+│   ├── mask_service.js     # 추론 + BIO 병합 + offset + 머지 + 복원
+│   └── transformers/       # Transformers.js dist + ORT wasm (setup 으로 복원)
+└── models/klue-ner/        # ONNX int8 모델 (setup 으로 복원)
+```
+
+### 설치
+```bash
+# 1) 대용량 바이너리(.wasm/.onnx) 복원 — GitHub 100MB 제한으로 git 미포함
+node scripts/setup_extension.mjs
+# 2) chrome://extensions → 개발자 모드 → '압축해제된 확장 프로그램 로드' → extension/ 선택
+```
+
+### 검증 (헤드리스 Chrome, `extension/_vendor/verify_browser.mjs`)
+실제 Chrome 에 확장을 로드해 `test.html` 추론 경로를 자동 검증한 결과:
+
+| 항목 | 결과 |
+|---|---|
+| 모델 로딩(WASM) | ~1.7s (최초 1회) |
+| 마스킹 지연 | **176ms** (NER 175ms + 정규식 1ms), 목표 500ms 이내 |
+| 왕복 복원 | 원문 완전 일치 ✓ |
+| 외부 네트워크 | 없음 (전부 로컬) |
+
+> 브라우저 WASM 추론은 native(onnxruntime-node, 14ms) 대비 느리지만 체감 가능 수준 이내.
+
+### 모델 선택 트레이드오프
+확장에는 **iter2(RoBERTa-base)** 의 ONNX int8(110MB)을 사용한다. large(iter10, 340MB) 대비:
+
+| | KLUE dev F1 | multi-source F1 | 크기 |
+|---|---:|---:|---:|
+| iter2 (base, 확장 탑재) | 0.916 | 0.810 | 110MB(int8) |
+| iter10 (large) | 0.889 | 0.856 | ~340MB(int8) |
+
+base 는 브라우저 친화적이고 KLUE 도메인에선 더 높지만, 다양한 도메인 일반화(multi-source)는 large 가 우수.
+→ 향후 base + NIKL 재학습(iter11-base)으로 일반화 개선 여지.
+
 ## 평가 지표
 
 - **마스킹 정확도**: entity-F1 (seqeval, 엄격) / token-F1 (라벨만, 부분점수) / masking coverage (privacy recall)
@@ -367,6 +428,47 @@ elif "-" in tag and tag.split("-", 1)[0] in ("B", "I"):
 **증상**: 초기 `requirements.txt` 에 `pyyaml` 없어 `configs/*.yaml` 로드 실패.
 
 **해결**: `requirements.txt` 에 `pyyaml>=6.0` 추가.
+
+### TS-13. ONNX export 시 tokenizer_class `TokenizersBackend` 로드 실패
+
+**증상**:
+```
+ValueError: Tokenizer class TokenizersBackend does not exist or is not currently imported.
+```
+
+**원인**: transformers 5.x 가 저장한 `tokenizer_config.json` 의 `tokenizer_class` 가 `"TokenizersBackend"` 로 기록됨. optimum/4.x 계열·Transformers.js 가 이 클래스명을 알지 못함.
+
+**해결**: `tokenizer_class` 를 `"BertTokenizerFast"` 로 정규화하고 `backend`/`is_local`/`never_split` 키 제거 (`scripts/build_onnx.py` 에 자동화). KLUE 계열은 BERT WordPiece 토크나이저라 호환됨.
+
+### TS-14. Transformers.js 토큰분류 파이프라인이 char offset · aggregation 미지원
+
+**증상**: `pipeline('token-classification')` 결과에 `start`/`end` 문자 위치가 없고, `aggregation_strategy` 옵션이 무시되어 서브워드(`단국`+`##대`+`##학교`)가 분리된 채 반환.
+
+**원인**: 브라우저용 Transformers.js 의 해당 파이프라인은 HF Python 의 `simple` 등 집계 전략·offset 매핑을 제공하지 않음.
+
+**해결**: `lib/mask_service.js` 에서 직접 처리.
+- **offset 재구성**: WordPiece 토큰의 surface(앞 `##` 제거)를 cursor 이후에서 `indexOf` 로 찾아 `[start,end)` 부여.
+- **BIO 병합**: 같은 라벨이고 `(gap==0[서브워드] || I-태그[공백 넘는 연속])` 이면 확장. → 모델이 서브워드를 `B-` 로 잘못 찍어도 병합되고, 서로 다른 entity(`박지성과 손흥민`)는 분리.
+
+### TS-15. 110MB ONNX 모델이 GitHub 100MB 제한 초과
+
+**증상**: `model_quantized.onnx`(110MB) · ORT `.wasm`(21MB) 를 커밋하면 push 거부 위험 + 저장소 비대.
+
+**해결**: 대용량 바이너리를 `.gitignore` 처리(`extension/models/**/*.onnx`, `extension/lib/transformers/*.wasm`, `extension/_vendor/`)하고, clone 후 `node scripts/setup_extension.mjs` 한 번으로 복원하도록 분리.
+
+### TS-16. MV3 Service Worker 에서 WASM 추론 불가
+
+**증상**: background service worker 에서 Transformers.js 를 직접 돌리면 WASM/DOM 의존·워커 종료로 추론이 불안정.
+
+**원인**: MV3 service worker 는 수시로 종료되고 일부 WASM 기능 제약. content script 는 페이지 CSP 영향.
+
+**해결**: `chrome.offscreen` 문서(`offscreen.html`)에서 추론을 수행. 확장 자체 CSP(`script-src 'self' 'wasm-unsafe-eval'`)가 적용되고, content↔background↔offscreen 메시지 릴레이로 분리. 모델 파일/wasm 은 `chrome.runtime.getURL` 로 로컬 로드(외부 네트워크 0).
+
+### TS-17. ChatGPT 입력창(ProseMirror contenteditable) 값 교체
+
+**증상**: `el.textContent = masked` 또는 `value` 설정이 React/ProseMirror 상태에 반영되지 않아 원문이 그대로 전송됨.
+
+**해결**: 입력창을 전체 선택 후 `document.execCommand('insertText', false, masked)` 로 교체 — 정식 input 이벤트가 발생해 React 상태가 갱신됨. textarea 는 native value setter + `input` 이벤트로 처리. 우리가 트리거한 전송은 `internalSubmit` 플래그로 재가로채기를 회피.
 
 ---
 

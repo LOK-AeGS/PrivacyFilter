@@ -470,6 +470,16 @@ ValueError: Tokenizer class TokenizersBackend does not exist or is not currently
 
 **해결**: 입력창을 전체 선택 후 `document.execCommand('insertText', false, masked)` 로 교체 — 정식 input 이벤트가 발생해 React 상태가 갱신됨. textarea 는 native value setter + `input` 이벤트로 처리. 우리가 트리거한 전송은 `internalSubmit` 플래그로 재가로채기를 회피.
 
+### TS-18. 장시간 NER 학습이 중간에 중단됨 (iter11-base, CPU)
+
+**증상**: `klue/roberta-base` 를 `train_iter11.jsonl`(103,808문장)로 재학습하던 백그라운드 작업이 토큰화 완료 직후 학습 루프 진입 시점에 종료. 로그에 Python 예외·OOM 흔적 없음(RAM 17GB+ 여유), `models/klue_roberta_base_iter11/` 에 저장된 체크포인트 0.
+
+**원인**: ① CPU 학습이 ~4.8h/epoch 인데 체크포인트가 epoch 끝에만 저장(`save_strategy="epoch"`)되어, 그 전에 죽으면 진행분 전체 손실. ② 학습을 세션 종속 백그라운드 작업으로 띄워, 세션 종료/컨텍스트 정리 시 자식 프로세스가 함께 정리됨(외부 kill).
+
+**해결**:
+- `scripts/train_ner.py` 에 `--save-steps` 추가 → 스텝 단위 체크포인트 저장. `trainer.train(resume_from_checkpoint=get_last_checkpoint(...))` 로 **중단 시 마지막 체크포인트에서 자동 재개**(없으면 처음부터).
+- 학습을 세션과 분리된 독립 프로세스로 기동(Windows `Start-Process -WindowStyle Hidden`, 로그는 `train.log`/`train.err`), `--save-steps 500`(약 22분 간격)으로 운영. 어떤 이유로 끊겨도 손실은 최대 한 구간.
+
 ---
 
 ## 라이선스

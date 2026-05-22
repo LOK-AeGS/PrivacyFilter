@@ -143,6 +143,8 @@ def main() -> None:
     parser.add_argument("--max-train-samples", type=int, default=None)
     parser.add_argument("--max-dev-samples", type=int, default=None)
     parser.add_argument("--fp16", action="store_true")
+    parser.add_argument("--save-steps", type=int, default=None,
+                        help="설정 시 스텝 단위로 체크포인트 저장(중단 대비). 미설정 시 epoch 단위.")
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
@@ -194,8 +196,10 @@ def main() -> None:
         learning_rate=args.lr,
         weight_decay=0.01,
         warmup_ratio=0.1,
-        eval_strategy="epoch",
-        save_strategy="epoch",
+        eval_strategy="steps" if args.save_steps else "epoch",
+        save_strategy="steps" if args.save_steps else "epoch",
+        eval_steps=args.save_steps,
+        save_steps=args.save_steps or 500,
         load_best_model_at_end=True,
         metric_for_best_model="f1",
         greater_is_better=True,
@@ -229,7 +233,12 @@ def main() -> None:
             compute_metrics=metrics_fn,
         )
 
-    trainer.train()
+    # 중단 시 마지막 체크포인트에서 자동 재개 (없으면 처음부터).
+    from transformers.trainer_utils import get_last_checkpoint
+    last_ckpt = get_last_checkpoint(str(args.out_dir))
+    if last_ckpt:
+        print(f"체크포인트에서 재개: {last_ckpt}")
+    trainer.train(resume_from_checkpoint=last_ckpt)
     final_metrics = trainer.evaluate()
     print("=== dev 평가 ===")
     for k, v in final_metrics.items():

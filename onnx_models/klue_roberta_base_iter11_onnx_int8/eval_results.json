@@ -1,0 +1,14 @@
+{
+  "eval_loss": 0.06375035643577576,
+  "eval_precision": 0.8885306881587105,
+  "eval_recall": 0.8877601585728444,
+  "eval_f1": 0.8881452562434157,
+  "eval_f1_LOCATION": 0.7959183673469388,
+  "eval_f1_ORG": 0.829184126201627,
+  "eval_f1_PERSON": 0.9410496046010065,
+  "eval_f1_PROJ_N": 1.0,
+  "eval_runtime": 121.2652,
+  "eval_samples_per_second": 44.118,
+  "eval_steps_per_second": 2.763,
+  "epoch": 2.0
+}

@@ -243,23 +243,24 @@ node scripts/setup_extension.mjs
 
 | 항목 | 결과 |
 |---|---|
-| 모델 로딩(WASM) | ~1.7s (최초 1회) |
-| 마스킹 지연 | **176ms** (NER 175ms + 정규식 1ms), 목표 500ms 이내 |
+| 모델 로딩(WASM) | ~1.4s (최초 1회) |
+| 마스킹 지연 | **218ms** (NER 217ms + 정규식 2ms), 목표 500ms 이내 |
 | 왕복 복원 | 원문 완전 일치 ✓ |
 | 외부 네트워크 | 없음 (전부 로컬) |
 
 > 브라우저 WASM 추론은 native(onnxruntime-node, 14ms) 대비 느리지만 체감 가능 수준 이내.
 
 ### 모델 선택 트레이드오프
-확장에는 **iter2(RoBERTa-base)** 의 ONNX int8(110MB)을 사용한다. large(iter10, 340MB) 대비:
+확장에는 **iter11-base(RoBERTa-base, KLUE+NIKL 재학습)** 의 ONNX int8(110MB)을 사용한다.
 
 | | KLUE dev F1 | multi-source F1 | 크기 |
 |---|---:|---:|---:|
-| iter2 (base, 확장 탑재) | 0.916 | 0.810 | 110MB(int8) |
+| iter2 (base, 구버전) | 0.916 | 0.810 | 110MB(int8) |
+| **iter11-base (base, 확장 탑재)** | **0.888** | **0.838** | 110MB(int8) |
 | iter10 (large) | 0.889 | 0.856 | ~340MB(int8) |
 
-base 는 브라우저 친화적이고 KLUE 도메인에선 더 높지만, 다양한 도메인 일반화(multi-source)는 large 가 우수.
-→ 향후 base + NIKL 재학습(iter11-base)으로 일반화 개선 여지.
+iter2 는 KLUE 에 과적합돼 타 도메인 일반화(multi-source)가 약했다(특히 nikl 0.75).
+**iter11-base 는 KLUE+NIKL 로 재학습**해 KLUE 점수는 소폭(0.911→0.882) 양보하되 nikl 0.75→0.91, ORG/LOC/PROJ_N 전반 상승으로 multi-source 0.810→0.838 달성 — 브라우저 친화적 크기(110MB) 그대로 large(0.856)에 근접.
 
 ## 평가 지표
 

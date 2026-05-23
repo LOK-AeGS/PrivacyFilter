@@ -16,7 +16,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const VENDOR = path.join(ROOT, "extension", "_vendor");
 const LIB = path.join(ROOT, "extension", "lib", "transformers");
 const MODEL_DST = path.join(ROOT, "extension", "models", "klue-ner");
-const ONNX_SRC = path.join(ROOT, "onnx_models", "klue_roberta_iter2_onnx_int8");
+const ONNX_SRC = path.join(ROOT, "onnx_models", "klue_roberta_base_iter11_onnx_int8");
 
 function ensureDir(d) { fs.mkdirSync(d, { recursive: true }); }
 function copy(src, dst) {
@@ -54,7 +54,7 @@ copy(path.join(ONNX_SRC, "tokenizer_config.json"), path.join(MODEL_DST, "tokeniz
 const ok = copy(path.join(ONNX_SRC, "model_quantized.onnx"), path.join(MODEL_DST, "onnx", "model_quantized.onnx"));
 if (!ok) {
   console.log("\n  ONNX 모델이 없으면 먼저 생성하세요:");
-  console.log("    python scripts/build_onnx.py --model-dir models/klue_roberta_iter2 \\");
-  console.log("      --out-dir onnx_models/klue_roberta_iter2_onnx");
+  console.log("    python scripts/build_onnx.py --model-dir models/klue_roberta_base_iter11 \\");
+  console.log("      --out-dir onnx_models/klue_roberta_base_iter11_onnx");
 }
 console.log("\n완료. chrome://extensions → '압축해제된 확장 프로그램 로드' → extension/ 선택");

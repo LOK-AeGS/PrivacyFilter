@@ -193,4 +193,5 @@ function showToast(text) {
   showToast._t = setTimeout(() => { if (toastEl) toastEl.style.opacity = "0"; }, 2500);
 }
 
+window.__pfLoaded = true; // 콘솔에서 로드 여부 확인용
 console.log("[PrivacyFilter] content script 활성화");

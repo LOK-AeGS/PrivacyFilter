@@ -44,9 +44,16 @@ export class AliasManager {
       state.regexCursor.set(label, idx + 1);
     } else if (NER_LABELS.has(label)) {
       const pool = ALIAS_POOLS[label];
-      const cursor = state.nerCursor.get(label) ?? 0;
-      alias = pool[cursor % pool.length];
-      state.nerCursor.set(label, cursor + 1);
+      let cursor = state.nerCursor.get(label) ?? 0;
+      // 가명이 원문의 부분문자열(또는 그 반대)이면 복원 시 무한 치환 위험
+      // (예: 원문 "서울시 강남구" ⊃ 가명 "서울시") → 충돌 없는 다음 후보 선택.
+      let tries = 0;
+      do {
+        alias = pool[cursor % pool.length];
+        cursor += 1;
+        tries += 1;
+      } while (tries < pool.length && (original.includes(alias) || alias.includes(original)));
+      state.nerCursor.set(label, cursor);
     } else {
       alias = `[${label}]`; // 알 수 없는 라벨 fallback
     }

@@ -13,6 +13,8 @@ const SELECTORS = {
   input: '#prompt-textarea, div[contenteditable="true"], textarea[data-testid], main textarea',
   sendButton: 'button[data-testid="send-button"], button[aria-label*="보내기"], button[aria-label*="Send"]',
   assistantMessage: '[data-message-author-role="assistant"]',
+  // 사용자+어시스턴트 메시지 모두 — 내 말풍선도 가명→원문 복원해 "내가 뭘 보냈는지" 보이게
+  message: '[data-message-author-role]',
 };
 
 let enabled = true;
@@ -188,7 +190,7 @@ const observer = new MutationObserver((mutations) => {
     // 추가/변경된 노드 주변의 어시스턴트 메시지 탐색
     const target = m.target.nodeType === 1 ? m.target : m.target.parentElement;
     if (!target) continue;
-    const msgEl = target.closest && target.closest(SELECTORS.assistantMessage);
+    const msgEl = target.closest && target.closest(SELECTORS.message);
     if (msgEl) scheduleRestore(msgEl);
   }
 });

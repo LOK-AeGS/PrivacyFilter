@@ -167,14 +167,23 @@ async function restoreMessage(msgEl) {
   if (!pairs.length) return;
   pairs.sort((a, b) => b.alias.length - a.alias.length);
 
-  walkTextNodes(msgEl, (node) => {
-    let t = node.nodeValue;
-    let changed = false;
-    for (const { alias, original } of pairs) {
-      if (alias && t.includes(alias)) { t = t.split(alias).join(original); changed = true; }
-    }
-    if (changed) node.nodeValue = t;
-  });
+  // 복원 쓰기가 옵저버를 재트리거 → 재복원되는 피드백 루프 차단.
+  // (가명이 원문의 부분문자열이면 매 사이클마다 누적되어 무한 폭주: 예 "서울시"→"서울시 강남구"→…)
+  observer.disconnect();
+  try {
+    walkTextNodes(msgEl, (node) => {
+      let t = node.nodeValue;
+      let changed = false;
+      for (const { alias, original } of pairs) {
+        if (!alias || alias === original) continue;
+        if (t.includes(original)) continue;   // 이미 복원됨 → 가명⊂원문일 때 재치환 폭주 방지(멱등)
+        if (t.includes(alias)) { t = t.split(alias).join(original); changed = true; }
+      }
+      if (changed) node.nodeValue = t;
+    });
+  } finally {
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
 }
 
 // 어시스턴트 메시지 스트리밍이 멈추면 복원 (메시지별 디바운스)

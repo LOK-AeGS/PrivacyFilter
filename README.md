@@ -238,7 +238,7 @@ node scripts/setup_extension.mjs
 # 2) chrome://extensions → 개발자 모드 → '압축해제된 확장 프로그램 로드' → extension/ 선택
 ```
 
-### 검증 (헤드리스 Chrome, `extension/_vendor/verify_browser.mjs`)
+### 검증 (헤드리스 Chrome, `_vendor/verify_browser.mjs`)
 실제 Chrome 에 확장을 로드해 `test.html` 추론 경로를 자동 검증한 결과:
 
 | 항목 | 결과 |
@@ -465,7 +465,7 @@ ValueError: Tokenizer class TokenizersBackend does not exist or is not currently
 
 **증상**: `model_quantized.onnx`(110MB) · ORT `.wasm`(21MB) 를 커밋하면 push 거부 위험 + 저장소 비대.
 
-**해결**: 대용량 바이너리를 `.gitignore` 처리(`extension/models/**/*.onnx`, `extension/lib/transformers/*.wasm`, `extension/_vendor/`)하고, clone 후 `node scripts/setup_extension.mjs` 한 번으로 복원하도록 분리.
+**해결**: 대용량 바이너리를 `.gitignore` 처리(`extension/models/**/*.onnx`, `extension/lib/transformers/*.wasm`, `_vendor/`)하고, clone 후 `node scripts/setup_extension.mjs` 한 번으로 복원하도록 분리. 개발용 puppeteer 하네스(`_vendor/`)는 `_` 로 시작해 확장에 포함되면 Chrome 이 로드를 거부하므로 repo 루트에 둔다.
 
 ### TS-16. MV3 Service Worker 에서 WASM 추론 불가
 

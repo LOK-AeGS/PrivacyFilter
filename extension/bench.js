@@ -13,6 +13,7 @@ env.allowLocalModels = true;
 env.localModelPath = chrome.runtime.getURL("models/");
 env.backends.onnx.wasm.wasmPaths = chrome.runtime.getURL("lib/transformers/");
 env.backends.onnx.wasm.numThreads = 1;
+env.useBrowserCache = false; // chrome-extension 스킴은 Cache API 미지원 → 경고 회피
 
 const status = document.getElementById("status");
 let svc;

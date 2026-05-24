@@ -15,6 +15,7 @@ env.allowLocalModels = true;
 env.localModelPath = chrome.runtime.getURL("models/");
 env.backends.onnx.wasm.wasmPaths = chrome.runtime.getURL("lib/transformers/");
 env.backends.onnx.wasm.numThreads = 1; // SharedArrayBuffer 미사용 환경
+env.useBrowserCache = false; // 로컬 파일이라 캐시 불필요 + Cache API 는 chrome-extension 스킴 미지원(경고 회피)
 
 const aliasManager = new AliasManager();
 let svcPromise = null; // lazy + 단일 로딩

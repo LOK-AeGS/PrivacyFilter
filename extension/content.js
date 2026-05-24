@@ -193,5 +193,7 @@ function showToast(text) {
   showToast._t = setTimeout(() => { if (toastEl) toastEl.style.opacity = "0"; }, 2500);
 }
 
-window.__pfLoaded = true; // 콘솔에서 로드 여부 확인용
+// 로드 표식을 DOM 에 남긴다 (content script 는 격리 world 라 window 전역은
+// 페이지 콘솔에서 안 보임 → DOM 속성은 공유되므로 콘솔에서 확인 가능).
+document.documentElement.dataset.pfLoaded = "1";
 console.log("[PrivacyFilter] content script 활성화");

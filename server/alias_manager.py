@@ -26,7 +26,8 @@ NER_KEY_MAP = {
 }
 
 # 정규식 토큰
-REGEX_LABELS = ("PHONE", "EMAIL", "RRN", "CARD", "ACCOUNT", "IP", "API_KEY")
+REGEX_LABELS = ("PHONE", "EMAIL", "RRN", "CARD", "ACCOUNT", "IP", "API_KEY",
+                "PASSPORT", "DRIVER_LICENSE", "BIZ_NUM")
 
 
 @dataclass

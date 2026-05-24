@@ -13,6 +13,9 @@ from typing import List, Tuple
 REGEX_TOKENS: Tuple[str, ...] = (
     "RRN",
     "CARD",
+    "DRIVER_LICENSE",
+    "BIZ_NUM",
+    "PASSPORT",
     "PHONE",
     "EMAIL",
     "IP",
@@ -74,7 +77,7 @@ _IP = re.compile(
     r"(?!\d)"
 )
 
-# API 키 / 시크릿 토큰: 주요 벤더별 prefix 기반
+# API 키 / 시크릿 토큰: 주요 벤더별 prefix + JWT
 _API_KEY = re.compile(
     r"(?:"
     r"sk-(?:proj-)?[A-Za-z0-9_\-]{20,}"          # OpenAI
@@ -86,18 +89,31 @@ _API_KEY = re.compile(
     r"|AIza[0-9A-Za-z_\-]{35}"                    # Google API Key
     r"|xox[abpr]-[A-Za-z0-9\-]{10,}"              # Slack token
     r"|sk_(?:live|test)_[A-Za-z0-9]{20,}"         # Stripe
+    r"|eyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}"  # JWT
     r")"
 )
+
+# 여권번호: 영문 1자(M/S/R/G/D 등) + 숫자 8자
+_PASSPORT = re.compile(r"(?<![A-Za-z0-9])[MSRGDOP]\d{8}(?![A-Za-z0-9])")
+
+# 운전면허번호: 2-2-6-2 (예: 11-22-333333-44)
+_DRIVER_LICENSE = re.compile(r"(?<!\d)\d{2}-\d{2}-\d{6}-\d{2}(?!\d)")
+
+# 사업자등록번호: 3-2-5 (예: 123-45-67890)
+_BIZ_NUM = re.compile(r"(?<!\d)\d{3}-\d{2}-\d{5}(?!\d)")
 
 
 REGEX_PATTERNS: List[Tuple[str, re.Pattern]] = [
     ("RRN", _RRN),
     ("CARD", _CARD),
+    ("DRIVER_LICENSE", _DRIVER_LICENSE),
+    ("BIZ_NUM", _BIZ_NUM),
+    ("PASSPORT", _PASSPORT),
     ("PHONE", _PHONE),
     ("EMAIL", _EMAIL),
     ("IP", _IP),
     ("API_KEY", _API_KEY),
-    # ACCOUNT는 가장 마지막. 자릿수 패턴이 느슨해서 PHONE/CARD 와 충돌할 수 있어
+    # ACCOUNT는 가장 마지막. 자릿수 패턴이 느슨해서 PHONE/CARD/BIZ_NUM 와 충돌할 수 있어
     # 위 패턴들이 먼저 잡고 남은 영역에서만 매치되도록 우선순위를 낮춤.
     ("ACCOUNT", _ACCOUNT),
 ]
@@ -169,6 +185,10 @@ if __name__ == "__main__":
         ("서버 IP 192.168.0.1 접근", "IP"),
         ("OPENAI_API_KEY=sk-proj-abcdefghijklmnopqrstuvwxyz0123456789", "API_KEY"),
         ("AWS키 AKIAIOSFODNN7EXAMPLE 노출", "API_KEY"),
+        ("여권번호 M12345678 확인", "PASSPORT"),
+        ("운전면허 11-22-333333-44 갱신", "DRIVER_LICENSE"),
+        ("사업자등록번호 123-45-67890 입니다", "BIZ_NUM"),
+        ("토큰 eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N", "API_KEY"),
         ("그냥 평범한 문장입니다.", None),
     ]
     print(f"{'expected':<10} | {'masked':<6} | result")

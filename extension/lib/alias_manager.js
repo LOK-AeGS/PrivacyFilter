@@ -4,7 +4,7 @@
 
 import { ALIAS_POOLS, REGEX_DUMMY } from "./aliases.js";
 
-const REGEX_LABELS = new Set(["PHONE", "EMAIL", "RRN", "CARD", "ACCOUNT", "IP", "API_KEY"]);
+const REGEX_LABELS = new Set(["PHONE", "EMAIL", "RRN", "CARD", "ACCOUNT", "IP", "API_KEY", "PASSPORT", "DRIVER_LICENSE", "BIZ_NUM"]);
 const NER_LABELS = new Set(["PERSON", "ORG", "LOCATION", "PROJ_N"]);
 
 class SessionState {

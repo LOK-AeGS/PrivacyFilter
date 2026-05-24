@@ -24,13 +24,25 @@ const EMAIL = /\b[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}\b/gi;
 // IPv4: 0~255 검증 포함
 const IP = /(?<!\d)(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?!\d)/g;
 
-// API 키 / 시크릿 토큰: 주요 벤더별 prefix 기반
-const API_KEY = /(?:sk-(?:proj-)?[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|gho_[A-Za-z0-9]{30,}|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|AIza[0-9A-Za-z_\-]{35}|xox[abpr]-[A-Za-z0-9\-]{10,}|sk_(?:live|test)_[A-Za-z0-9]{20,})/g;
+// API 키 / 시크릿 토큰: 주요 벤더별 prefix + JWT
+const API_KEY = /(?:sk-(?:proj-)?[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|gho_[A-Za-z0-9]{30,}|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|AIza[0-9A-Za-z_\-]{35}|xox[abpr]-[A-Za-z0-9\-]{10,}|sk_(?:live|test)_[A-Za-z0-9]{20,}|eyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,})/g;
 
-// 우선순위 리스트 (긴 자릿수 패턴이 위, ACCOUNT 는 느슨해서 마지막)
+// 여권번호: 영문 1자(M/S/R/G/D 등) + 숫자 8자
+const PASSPORT = /(?<![A-Za-z0-9])[MSRGDOP]\d{8}(?![A-Za-z0-9])/g;
+
+// 운전면허번호: 2-2-6-2 (예: 11-22-333333-44)
+const DRIVER_LICENSE = /(?<!\d)\d{2}-\d{2}-\d{6}-\d{2}(?!\d)/g;
+
+// 사업자등록번호: 3-2-5 (예: 123-45-67890)
+const BIZ_NUM = /(?<!\d)\d{3}-\d{2}-\d{5}(?!\d)/g;
+
+// 우선순위 리스트 (긴/구체적 패턴이 위, ACCOUNT 는 느슨해서 마지막)
 const REGEX_PATTERNS = [
   ["RRN", RRN],
   ["CARD", CARD],
+  ["DRIVER_LICENSE", DRIVER_LICENSE],
+  ["BIZ_NUM", BIZ_NUM],
+  ["PASSPORT", PASSPORT],
   ["PHONE", PHONE],
   ["EMAIL", EMAIL],
   ["IP", IP],

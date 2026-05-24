@@ -85,8 +85,41 @@ export class MaskService {
     return (await this.tokenizer(s)).input_ids.data.length - 2;
   }
 
-  // ── NER 추론 (Transformers.js). 512토큰 초과 입력은 문장 경계로 청킹 ──
+  // 기관 접미사 / 고정밀 행정구역 사전 — 모델이 놓친 ORG/LOC 재현율 보강.
+  static GAZETTEER = [
+    [/[가-힣A-Za-z0-9]{2,}\s?(?:대학교|대학|주식회사|병원|의원|은행|증권|연구원|연구소|그룹)/g, "ORG"],
+    [/(?:㈜|\(주\))\s?[가-힣A-Za-z0-9]{2,}|[가-힣A-Za-z0-9]{2,}\s?(?:㈜|\(주\))/g, "ORG"],
+    [/[가-힣]{2,}(?:특별자치시|특별자치도|특별시|광역시)/g, "LOCATION"],
+  ];
+
+  // 사전 기반 ORG/LOC 스팬 (내부 중복은 긴 것 우선으로 제거)
+  static gazetteerSpans(text) {
+    const spans = [];
+    for (const [re, label] of MaskService.GAZETTEER) {
+      re.lastIndex = 0;
+      for (const m of text.matchAll(re)) {
+        spans.push({ start: m.index, end: m.index + m[0].length, label, text: m[0] });
+      }
+    }
+    spans.sort((a, b) => (b.end - b.start) - (a.end - a.start));
+    const out = [];
+    for (const s of spans) {
+      if (!out.some((o) => !(s.end <= o.start || s.start >= o.end))) out.push(s);
+    }
+    return out;
+  }
+
+  // ── NER 추론: 모델 스팬 + 가제티어 보강 병합 (겹치면 모델 우선) ──
   async nerSpans(text) {
+    const merged = await this._modelSpans(text);
+    for (const g of MaskService.gazetteerSpans(text)) {
+      if (!merged.some((s) => !(g.end <= s.start || g.start >= s.end))) merged.push(g);
+    }
+    return merged;
+  }
+
+  // 모델 추론. 512토큰 초과 입력은 문장 경계로 청킹.
+  async _modelSpans(text) {
     const enc = await this.tokenizer(text);
     const ids = Array.from(enc.input_ids.data).map(Number);
     if (ids.length <= MaskService.MAX_MODEL_TOKENS) {

@@ -44,4 +44,7 @@ export const REGEX_DUMMY = {
   ACCOUNT: (i) => `000-0000-${pad(i, 6)}`,
   IP: (i) => `10.0.0.${i}`,
   API_KEY: (i) => `sk-dummy-${pad(i, 32)}`,
+  PASSPORT: (i) => `M${pad(i, 8)}`,
+  DRIVER_LICENSE: (i) => `00-00-000000-${pad(i, 2)}`,
+  BIZ_NUM: (i) => `000-00-${pad(i, 5)}`,
 };

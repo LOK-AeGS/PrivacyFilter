@@ -113,3 +113,6 @@ regex_dummies:
   ACCOUNT: "000-0000-{i:06d}"
   IP: "10.0.0.{i}"
   API_KEY: "sk-dummy-{i:032d}"
+  PASSPORT: "M{i:08d}"
+  DRIVER_LICENSE: "00-00-000000-{i:02d}"
+  BIZ_NUM: "000-00-{i:05d}"

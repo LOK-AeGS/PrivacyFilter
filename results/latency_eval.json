@@ -1,0 +1,522 @@
+{
+  "backend": "browser WASM (numThreads=1)",
+  "iters": 10,
+  "loadMs": 1559,
+  "coldMs": 121,
+  "overall": {
+    "mean": 250.725,
+    "median": 165,
+    "p90": 697,
+    "p95": 1066,
+    "min": 64,
+    "max": 1083
+  },
+  "byType": {
+    "short": {
+      "mean": 67.75,
+      "median": 68,
+      "p90": 75,
+      "p95": 76,
+      "min": 64,
+      "max": 76
+    },
+    "medium": {
+      "mean": 175.725,
+      "median": 165,
+      "p90": 224,
+      "p95": 227,
+      "min": 138,
+      "max": 245
+    },
+    "long": {
+      "mean": 883.7,
+      "median": 1063,
+      "p90": 1077,
+      "p95": 1083,
+      "min": 687,
+      "max": 1083
+    }
+  },
+  "perPrompt": [
+    {
+      "id": 101,
+      "type": "short",
+      "chars": 25,
+      "n_spans": 2,
+      "total": {
+        "mean": 68,
+        "median": 68,
+        "p90": 76,
+        "p95": 76,
+        "min": 65,
+        "max": 76
+      },
+      "ner": {
+        "mean": 67.8,
+        "median": 68,
+        "p90": 76,
+        "p95": 76,
+        "min": 64,
+        "max": 76
+      },
+      "regex": {
+        "mean": 0,
+        "median": 0,
+        "p90": 0,
+        "p95": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": 102,
+      "type": "short",
+      "chars": 29,
+      "n_spans": 3,
+      "total": {
+        "mean": 67.5,
+        "median": 66,
+        "p90": 75,
+        "p95": 75,
+        "min": 64,
+        "max": 75
+      },
+      "ner": {
+        "mean": 67.5,
+        "median": 66,
+        "p90": 75,
+        "p95": 75,
+        "min": 64,
+        "max": 75
+      },
+      "regex": {
+        "mean": 0,
+        "median": 0,
+        "p90": 0,
+        "p95": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": 1,
+      "type": "medium",
+      "chars": 119,
+      "n_spans": 3,
+      "total": {
+        "mean": 221.2,
+        "median": 221,
+        "p90": 225,
+        "p95": 225,
+        "min": 218,
+        "max": 225
+      },
+      "ner": {
+        "mean": 221.2,
+        "median": 221,
+        "p90": 225,
+        "p95": 225,
+        "min": 218,
+        "max": 225
+      },
+      "regex": {
+        "mean": 0,
+        "median": 0,
+        "p90": 0,
+        "p95": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": 2,
+      "type": "medium",
+      "chars": 126,
+      "n_spans": 3,
+      "total": {
+        "mean": 215,
+        "median": 216,
+        "p90": 218,
+        "p95": 218,
+        "min": 211,
+        "max": 218
+      },
+      "ner": {
+        "mean": 215,
+        "median": 216,
+        "p90": 218,
+        "p95": 218,
+        "min": 211,
+        "max": 218
+      },
+      "regex": {
+        "mean": 0,
+        "median": 0,
+        "p90": 0,
+        "p95": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": 3,
+      "type": "medium",
+      "chars": 89,
+      "n_spans": 3,
+      "total": {
+        "mean": 155.1,
+        "median": 155,
+        "p90": 159,
+        "p95": 159,
+        "min": 152,
+        "max": 159
+      },
+      "ner": {
+        "mean": 155.1,
+        "median": 155,
+        "p90": 159,
+        "p95": 159,
+        "min": 152,
+        "max": 159
+      },
+      "regex": {
+        "mean": 0,
+        "median": 0,
+        "p90": 0,
+        "p95": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": 4,
+      "type": "medium",
+      "chars": 108,
+      "n_spans": 3,
+      "total": {
+        "mean": 208.6,
+        "median": 207,
+        "p90": 219,
+        "p95": 219,
+        "min": 203,
+        "max": 219
+      },
+      "ner": {
+        "mean": 208.6,
+        "median": 207,
+        "p90": 219,
+        "p95": 219,
+        "min": 203,
+        "max": 219
+      },
+      "regex": {
+        "mean": 0,
+        "median": 0,
+        "p90": 0,
+        "p95": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": 5,
+      "type": "medium",
+      "chars": 72,
+      "n_spans": 3,
+      "total": {
+        "mean": 139.9,
+        "median": 139,
+        "p90": 144,
+        "p95": 144,
+        "min": 138,
+        "max": 144
+      },
+      "ner": {
+        "mean": 139.9,
+        "median": 139,
+        "p90": 144,
+        "p95": 144,
+        "min": 138,
+        "max": 144
+      },
+      "regex": {
+        "mean": 0,
+        "median": 0,
+        "p90": 0,
+        "p95": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": 6,
+      "type": "medium",
+      "chars": 103,
+      "n_spans": 4,
+      "total": {
+        "mean": 168.6,
+        "median": 169,
+        "p90": 173,
+        "p95": 173,
+        "min": 165,
+        "max": 173
+      },
+      "ner": {
+        "mean": 168.5,
+        "median": 169,
+        "p90": 173,
+        "p95": 173,
+        "min": 165,
+        "max": 173
+      },
+      "regex": {
+        "mean": 0,
+        "median": 0,
+        "p90": 0,
+        "p95": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": 7,
+      "type": "medium",
+      "chars": 96,
+      "n_spans": 5,
+      "total": {
+        "mean": 161.8,
+        "median": 162,
+        "p90": 165,
+        "p95": 165,
+        "min": 159,
+        "max": 165
+      },
+      "ner": {
+        "mean": 161.8,
+        "median": 162,
+        "p90": 165,
+        "p95": 165,
+        "min": 159,
+        "max": 165
+      },
+      "regex": {
+        "mean": 0,
+        "median": 0,
+        "p90": 0,
+        "p95": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": 8,
+      "type": "medium",
+      "chars": 74,
+      "n_spans": 2,
+      "total": {
+        "mean": 148.2,
+        "median": 147,
+        "p90": 159,
+        "p95": 159,
+        "min": 144,
+        "max": 159
+      },
+      "ner": {
+        "mean": 148.2,
+        "median": 147,
+        "p90": 159,
+        "p95": 159,
+        "min": 144,
+        "max": 159
+      },
+      "regex": {
+        "mean": 0,
+        "median": 0,
+        "p90": 0,
+        "p95": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": 9,
+      "type": "medium",
+      "chars": 82,
+      "n_spans": 5,
+      "total": {
+        "mean": 148.1,
+        "median": 147,
+        "p90": 153,
+        "p95": 153,
+        "min": 146,
+        "max": 153
+      },
+      "ner": {
+        "mean": 148.1,
+        "median": 147,
+        "p90": 153,
+        "p95": 153,
+        "min": 146,
+        "max": 153
+      },
+      "regex": {
+        "mean": 0,
+        "median": 0,
+        "p90": 0,
+        "p95": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": 10,
+      "type": "medium",
+      "chars": 97,
+      "n_spans": 3,
+      "total": {
+        "mean": 167.8,
+        "median": 167,
+        "p90": 171,
+        "p95": 171,
+        "min": 165,
+        "max": 171
+      },
+      "ner": {
+        "mean": 167.8,
+        "median": 167,
+        "p90": 171,
+        "p95": 171,
+        "min": 165,
+        "max": 171
+      },
+      "regex": {
+        "mean": 0,
+        "median": 0,
+        "p90": 0,
+        "p95": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": 11,
+      "type": "medium",
+      "chars": 78,
+      "n_spans": 3,
+      "total": {
+        "mean": 145.6,
+        "median": 146,
+        "p90": 151,
+        "p95": 151,
+        "min": 143,
+        "max": 151
+      },
+      "ner": {
+        "mean": 145.6,
+        "median": 146,
+        "p90": 151,
+        "p95": 151,
+        "min": 143,
+        "max": 151
+      },
+      "regex": {
+        "mean": 0,
+        "median": 0,
+        "p90": 0,
+        "p95": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": 12,
+      "type": "medium",
+      "chars": 119,
+      "n_spans": 2,
+      "total": {
+        "mean": 228.8,
+        "median": 228,
+        "p90": 245,
+        "p95": 245,
+        "min": 224,
+        "max": 245
+      },
+      "ner": {
+        "mean": 228.8,
+        "median": 228,
+        "p90": 245,
+        "p95": 245,
+        "min": 224,
+        "max": 245
+      },
+      "regex": {
+        "mean": 0,
+        "median": 0,
+        "p90": 0,
+        "p95": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": 201,
+      "type": "long",
+      "chars": 400,
+      "n_spans": 12,
+      "total": {
+        "mean": 696.7,
+        "median": 699,
+        "p90": 703,
+        "p95": 703,
+        "min": 687,
+        "max": 703
+      },
+      "ner": {
+        "mean": 696.5,
+        "median": 699,
+        "p90": 703,
+        "p95": 703,
+        "min": 686,
+        "max": 703
+      },
+      "regex": {
+        "mean": 0,
+        "median": 0,
+        "p90": 0,
+        "p95": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": 202,
+      "type": "long",
+      "chars": 600,
+      "n_spans": 19,
+      "total": {
+        "mean": 1070.7,
+        "median": 1070,
+        "p90": 1083,
+        "p95": 1083,
+        "min": 1063,
+        "max": 1083
+      },
+      "ner": {
+        "mean": 1070.7,
+        "median": 1070,
+        "p90": 1083,
+        "p95": 1083,
+        "min": 1063,
+        "max": 1083
+      },
+      "regex": {
+        "mean": 0,
+        "median": 0,
+        "p90": 0,
+        "p95": 0,
+        "min": 0,
+        "max": 0
+      }
+    }
+  ]
+}

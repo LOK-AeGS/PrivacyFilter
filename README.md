@@ -243,12 +243,22 @@ node scripts/setup_extension.mjs
 
 | 항목 | 결과 |
 |---|---|
-| 모델 로딩(WASM) | ~1.4s (최초 1회) |
-| 마스킹 지연 | **218ms** (NER 217ms + 정규식 2ms), 목표 500ms 이내 |
+| 모델 로딩(WASM, 콜드 스타트) | ~1.6s (최초 1회) |
+| 마스킹 지연 (일반 프롬프트) | 65~230ms, 목표 500ms 이내 ✓ |
 | 왕복 복원 | 원문 완전 일치 ✓ |
 | 외부 네트워크 | 없음 (전부 로컬) |
 
-> 브라우저 WASM 추론은 native(onnxruntime-node, 14ms) 대비 느리지만 체감 가능 수준 이내.
+**처리 지연 정밀 평가** (브라우저 WASM, 단일스레드, 프롬프트당 10회 반복 · 산출 `results/latency_eval.json`):
+
+| 유형 | 글자수 | 토큰 | 평균 | 중앙값 | p95 |
+|---|---:|---:|---:|---:|---:|
+| short  | ~25     |  16     | 68ms  | 68ms   | 76ms   |
+| medium | 70~130  | 60~70   | 176ms | 165ms  | 227ms  |
+| long   | 400~600 | 200~296 | 884ms | 1063ms | 1083ms |
+
+- 지연은 거의 전부 **NER 추론**에서 발생(정규식 <1ms). 시퀀스 길이가 길수록 어텐션 비용으로 증가.
+- 일반적인 채팅 프롬프트(short~medium)는 목표 500ms 이내. 400자 이상 장문은 0.7~1.1s 로 목표 초과 → 청킹 개선 여지(TS-19).
+- 브라우저 WASM 추론은 native(onnxruntime-node, 14ms) 대비 느리지만 일반 프롬프트에선 체감 가능 수준 이내.
 
 ### 모델 선택 트레이드오프
 확장에는 **iter11-base(RoBERTa-base, KLUE+NIKL 재학습)** 의 ONNX int8(110MB)을 사용한다.
@@ -480,6 +490,14 @@ ValueError: Tokenizer class TokenizersBackend does not exist or is not currently
 **해결**:
 - `scripts/train_ner.py` 에 `--save-steps` 추가 → 스텝 단위 체크포인트 저장. `trainer.train(resume_from_checkpoint=get_last_checkpoint(...))` 로 **중단 시 마지막 체크포인트에서 자동 재개**(없으면 처음부터).
 - 학습을 세션과 분리된 독립 프로세스로 기동(Windows `Start-Process -WindowStyle Hidden`, 로그는 `train.log`/`train.err`), `--save-steps 500`(약 22분 간격)으로 운영. 어떤 이유로 끊겨도 손실은 최대 한 구간.
+
+### TS-19. 512 토큰 초과 입력에서 NER 추론 크래시
+
+**증상**: 장문 프롬프트(예: 1,174자 ≈ 578토큰)를 마스킹하면 ONNX 추론이 `Expand node: invalid expand shape`(ORT ERROR_CODE 2)로 실패. 처리 지연 벤치(`bench_latency.mjs`)에서 발견.
+
+**원인**: RoBERTa-base 의 `max_position_embeddings=514`. `mask_service` 가 truncation 없이 토큰화해, 514 토큰 초과 시 position embedding expand 가 깨짐.
+
+**해결(후속 과제)**: 입력을 문장/길이 단위로 청킹해 각각 마스킹 후 병합(단순 truncation 은 잘린 뒤쪽 PII 가 마스킹 안 되는 유출 위험). 일반 채팅 프롬프트 길이(≤~300토큰)에선 문제없으므로 장문 지원은 후속 과제로 분리.
 
 ---
 

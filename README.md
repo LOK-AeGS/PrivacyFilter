@@ -257,7 +257,7 @@ node scripts/setup_extension.mjs
 | long   | 400~600 | 200~296 | 884ms | 1063ms | 1083ms |
 
 - 지연은 거의 전부 **NER 추론**에서 발생(정규식 <1ms). 시퀀스 길이가 길수록 어텐션 비용으로 증가.
-- 일반적인 채팅 프롬프트(short~medium)는 목표 500ms 이내. 400자 이상 장문은 0.7~1.1s 로 목표 초과 → 청킹 개선 여지(TS-19).
+- 일반적인 채팅 프롬프트(short~medium)는 목표 500ms 이내. 400자+ 장문은 0.7~1.1s, 512토큰 초과 입력은 자동 청킹으로 안전 처리(TS-19, 예: 1,174자 ≈2.4s).
 - 브라우저 WASM 추론은 native(onnxruntime-node, 14ms) 대비 느리지만 일반 프롬프트에선 체감 가능 수준 이내.
 
 ### 모델 선택 트레이드오프
@@ -497,7 +497,7 @@ ValueError: Tokenizer class TokenizersBackend does not exist or is not currently
 
 **원인**: RoBERTa-base 의 `max_position_embeddings=514`. `mask_service` 가 truncation 없이 토큰화해, 514 토큰 초과 시 position embedding expand 가 깨짐.
 
-**해결(후속 과제)**: 입력을 문장/길이 단위로 청킹해 각각 마스킹 후 병합(단순 truncation 은 잘린 뒤쪽 PII 가 마스킹 안 되는 유출 위험). 일반 채팅 프롬프트 길이(≤~300토큰)에선 문제없으므로 장문 지원은 후속 과제로 분리.
+**해결**: `mask_service.nerSpans` 에 문장 경계 청킹 도입. 512토큰 이하는 단일 추론(기존과 동일, 지연 영향 0), 초과 시 종결부호→공백→글자 순으로 ≤480토큰 청크로 나눠 각각 NER 후 원문 오프셋을 보정해 병합한다. 엔티티는 문장을 넘지 않으므로 분할로 쪼개지지 않음. 단순 truncation 은 잘린 뒤쪽 PII 유출 위험이라 배제. **검증**: 1,174자(578토큰) 입력이 크래시 없이 스팬 37개 탐지 + 왕복 복원 원문 일치(NER ~2.4s, 청크 3개).
 
 ---
 

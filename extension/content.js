@@ -18,11 +18,13 @@ const SELECTORS = {
 };
 
 let enabled = true;
+let debug = false; // 디버그 로그(콘솔) — 팝업에서 토글. 발표 시연용.
 let internalSubmit = false; // 우리가 트리거한 전송은 다시 가로채지 않기 위한 플래그
 
-chrome.storage.local.get({ enabled: true }, (v) => { enabled = v.enabled; });
+chrome.storage.local.get({ enabled: true, debug: false }, (v) => { enabled = v.enabled; debug = v.debug; });
 chrome.storage.onChanged.addListener((changes) => {
   if (changes.enabled) enabled = changes.enabled.newValue;
+  if (changes.debug) debug = changes.debug.newValue;
 });
 
 // ───────────── 입력창 헬퍼 ─────────────
@@ -96,6 +98,13 @@ async function maskAndSend(inputArg) {
   }
 
   if (res && res.maskedText && !res.error) {
+    if (debug && res.spans) {
+      console.group("%c🔒 PrivacyFilter — 마스킹 적용", "color:#10a37f;font-weight:bold");
+      console.table(res.spans.map((s) => ({ 라벨: s.label, 원본: s.original, "→ 가명": s.alias, 출처: s.src })));
+      console.log("ChatGPT 로 전송된 텍스트:", res.maskedText);
+      console.log(`원본 PII ${res.spans.length}건 제거 · ${res.latency.total_ms}ms`);
+      console.groupEnd();
+    }
     setText(input, res.maskedText);
     await new Promise((r) => setTimeout(r, 40)); // React 상태 반영 대기
     if (res.spans && res.spans.length) {
@@ -159,6 +168,7 @@ async function restoreMessage(msgEl) {
   // 복원 쓰기가 옵저버를 재트리거 → 재복원되는 피드백 루프 차단.
   // (가명이 원문의 부분문자열이면 매 사이클마다 누적되어 무한 폭주: 예 "서울시"→"서울시 강남구"→…)
   observer.disconnect();
+  let anyChanged = false;
   try {
     walkTextNodes(msgEl, (node) => {
       let t = node.nodeValue;
@@ -168,10 +178,14 @@ async function restoreMessage(msgEl) {
         if (t.includes(original)) continue;   // 이미 복원됨 → 가명⊂원문일 때 재치환 폭주 방지(멱등)
         if (t.includes(alias)) { t = t.split(alias).join(original); changed = true; }
       }
-      if (changed) node.nodeValue = t;
+      if (changed) { node.nodeValue = t; anyChanged = true; }
     });
   } finally {
     observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+  if (debug && anyChanged) {
+    const role = msgEl.getAttribute("data-message-author-role") === "user" ? "내 메시지" : "응답";
+    console.log(`%c↩ PrivacyFilter — ${role} 복원: 가명 → 원본`, "color:#10a37f");
   }
 }
 

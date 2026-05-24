@@ -1,13 +1,20 @@
 const toggle = document.getElementById("toggle");
+const debugToggle = document.getElementById("debugToggle");
 const dot = document.getElementById("dot");
 const modelStatus = document.getElementById("modelStatus");
 const stats = document.getElementById("stats");
 const clearBtn = document.getElementById("clearBtn");
 
 // 토글 상태 로드
-chrome.storage.local.get({ enabled: true }, (v) => { toggle.checked = v.enabled; });
+chrome.storage.local.get({ enabled: true, debug: false }, (v) => {
+  toggle.checked = v.enabled;
+  debugToggle.checked = v.debug;
+});
 toggle.addEventListener("change", () => {
   chrome.storage.local.set({ enabled: toggle.checked });
+});
+debugToggle.addEventListener("change", () => {
+  chrome.storage.local.set({ debug: debugToggle.checked });
 });
 
 // 모델/세션 상태 조회

@@ -26,7 +26,17 @@ chrome.storage.onChanged.addListener((changes) => {
 // ───────────── 입력창 헬퍼 ─────────────
 
 function getInput() {
-  return document.querySelector(SELECTORS.input);
+  // #prompt-textarea(ChatGPT 프롬프트 ID)를 우선 — querySelector 의 문서순서 때문에
+  // 다른 contenteditable 이 먼저 잡히는 문제 회피.
+  return (
+    document.querySelector("#prompt-textarea") ||
+    document.querySelector(SELECTORS.input)
+  );
+}
+
+// 이벤트 발생 지점에서 가장 가까운 입력 영역 (가장 견고한 방식)
+function findEditable(node) {
+  return (node && node.closest && node.closest('#prompt-textarea, [contenteditable="true"], textarea')) || null;
 }
 
 function getText(el) {
@@ -71,8 +81,8 @@ function triggerSend() {
 
 // ───────────── 마스킹 후 전송 ─────────────
 
-async function maskAndSend() {
-  const input = getInput();
+async function maskAndSend(inputArg) {
+  const input = inputArg || getInput();
   const text = getText(input);
   console.log("[PF] 원문:", JSON.stringify(text));
   if (!text || !text.trim()) { console.log("[PF] 빈 입력 — 그대로 전송"); internalSubmit = true; triggerSend(); return; }
@@ -112,16 +122,15 @@ function onKeydown(e) {
     console.log("[PF] ⏭ 한글 조합 중(IME)이라 통과 — 마스킹 안 함");
     return;
   }
-  const input = getInput();
-  const matched = !!input && (e.target === input || input.contains(e.target));
-  console.log("[PF] 입력창 발견:", !!input, "/ 이벤트 타깃 매치:", matched, "/ target:", e.target && e.target.tagName);
-  if (!input || !matched) { console.log("[PF] ⏭ 입력창 매치 실패 — 통과"); return; }
+  const input = findEditable(e.target) || getInput();
+  console.log("[PF] 입력영역:", input ? (input.id || input.tagName) : null);
+  if (!input) { console.log("[PF] ⏭ 입력영역 못 찾음 — 통과"); return; }
   if (internalSubmit) { internalSubmit = false; return; } // 우리가 보낸 Enter 통과
 
   console.log("[PF] ✋ 가로채기 성공 → 마스킹 시작");
   e.preventDefault();
   e.stopImmediatePropagation();
-  maskAndSend();
+  maskAndSend(input);
 }
 
 function onClick(e) {

@@ -223,7 +223,7 @@ export class MaskService {
     const seen = new Set();
     const pairs = [];
     for (const sp of spans) {
-      const k = sp.alias + " " + sp.original;
+      const k = sp.alias + " " + sp.original;
       if (seen.has(k)) continue;
       seen.add(k);
       if (sp.alias && sp.alias !== sp.original) pairs.push([sp.alias, sp.original]);

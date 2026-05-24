@@ -499,6 +499,14 @@ ValueError: Tokenizer class TokenizersBackend does not exist or is not currently
 
 **해결**: `mask_service.nerSpans` 에 문장 경계 청킹 도입. 512토큰 이하는 단일 추론(기존과 동일, 지연 영향 0), 초과 시 종결부호→공백→글자 순으로 ≤480토큰 청크로 나눠 각각 NER 후 원문 오프셋을 보정해 병합한다. 엔티티는 문장을 넘지 않으므로 분할로 쪼개지지 않음. 단순 truncation 은 잘린 뒤쪽 PII 유출 위험이라 배제. **검증**: 1,174자(578토큰) 입력이 크래시 없이 스팬 37개 탐지 + 왕복 복원 원문 일치(NER ~2.4s, 청크 3개).
 
+### TS-20. NUL 바이트로 인한 getPairs 복원 깨짐
+
+**증상**: `extension/lib/*.js` 일부가 git/ripgrep 에서 binary 로 표시돼 diff 가 안 보임(`mask_service.js` 1개, `alias_manager.js` 2개의 NUL). 더 심각하게, 라이브 응답 복원 경로(`content.js → background → offscreen → getPairs`)에서 원문이 깨질 수 있었음.
+
+**원인**: 매핑 키 구분자가 공백이 아니라 NUL(0x00)이었음 — `getAlias` 는 `` `${label}<NUL>${original}` `` 로 키를 만드는데, `getPairs` 는 `key.indexOf(" ")`(공백)로 구분자를 찾음. 라벨에 공백이 없어 NUL 을 못 찾으면 `slice` 결과가 잘못돼 original 이 깨짐(공백 없는 original 은 키 전체가 반환). 편집기·`Read` 에서는 NUL 이 공백처럼 보여 발견이 늦음. (헤드리스 검증은 spans 기반 `MaskService.unmask` 만 써서 이 경로를 안 거쳐 사각지대였음.)
+
+**해결**: 모든 NUL 을 공백으로 교체 → 파일이 정상 텍스트가 되고(diff 복원), 구분자가 `getPairs` 의 `indexOf(" ")` 와 일치해 복원 정상화. **검증**(`verify_getpairs.mjs`, 실 확장 컨텍스트): PERSON·ORG(내부 공백 포함)·PHONE·LOCATION 모두 original 정확 복원, `extension/lib/*.js` NUL 0 확인.
+
 ---
 
 ## 라이선스

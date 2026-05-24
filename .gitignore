@@ -46,7 +46,7 @@ CLAUDE.md
 .claude/
 
 # Chrome 확장 — 대용량 바이너리 (setup 스크립트로 복원, GitHub 100MB 제한)
-extension/_vendor/
+_vendor/
 extension/lib/transformers/*.wasm
 extension/lib/transformers/*.map
 extension/models/**/*.onnx

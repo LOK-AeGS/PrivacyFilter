@@ -13,7 +13,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const VENDOR = path.join(ROOT, "extension", "_vendor");
+const VENDOR = path.join(ROOT, "_vendor");
 const LIB = path.join(ROOT, "extension", "lib", "transformers");
 const MODEL_DST = path.join(ROOT, "extension", "models", "klue-ner");
 const ONNX_SRC = path.join(ROOT, "onnx_models", "klue_roberta_base_iter11_onnx_int8");

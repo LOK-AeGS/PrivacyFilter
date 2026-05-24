@@ -13,6 +13,9 @@ env/
 # Secrets (API keys) — .env.example 만 커밋
 .env
 
+# 배포/시연용 패키지 ZIP (로컬 산출물)
+*.zip
+
 # Datasets (raw downloads)
 data/raw/*
 !data/raw/.gitkeep

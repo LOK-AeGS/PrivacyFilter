@@ -74,23 +74,28 @@ function triggerSend() {
 async function maskAndSend() {
   const input = getInput();
   const text = getText(input);
-  if (!text || !text.trim()) { internalSubmit = true; triggerSend(); return; }
+  console.log("[PF] 원문:", JSON.stringify(text));
+  if (!text || !text.trim()) { console.log("[PF] 빈 입력 — 그대로 전송"); internalSubmit = true; triggerSend(); return; }
 
   let res;
   try {
     res = await chrome.runtime.sendMessage({ type: "mask", text });
   } catch (e) {
-    console.warn("[PrivacyFilter] mask 요청 실패, 원문 전송:", e);
+    console.warn("[PF] ❌ mask 요청 실패(offscreen 미응답?), 원문 전송:", e);
   }
+  console.log("[PF] 마스킹 응답:", res);
 
   if (res && res.maskedText && !res.error) {
+    console.log("[PF] ✅ 마스킹됨:", JSON.stringify(res.maskedText), "/ 스팬", res.spans && res.spans.length);
     setText(input, res.maskedText);
     await new Promise((r) => setTimeout(r, 40)); // React 상태 반영 대기
     if (res.spans && res.spans.length) {
       showToast(`🔒 ${res.spans.length}개 항목 마스킹 (${res.latency.total_ms}ms)`);
     }
   } else if (res && res.error) {
-    console.warn("[PrivacyFilter] 마스킹 오류, 원문 전송:", res.error);
+    console.warn("[PF] ❌ 마스킹 오류, 원문 전송:", res.error);
+  } else {
+    console.warn("[PF] ⚠ 마스킹 결과 없음 — 원문 전송됨");
   }
 
   internalSubmit = true;
@@ -100,13 +105,20 @@ async function maskAndSend() {
 // ───────────── 전송 이벤트 가로채기 ─────────────
 
 function onKeydown(e) {
-  if (!enabled) return;
+  if (!enabled) { console.log("[PF] Enter 무시 — 확장 비활성(enabled=false)"); return; }
   if (e.key !== "Enter" || e.shiftKey) return;
-  if (e.isComposing || e.keyCode === 229) return; // 한글 조합 중
+  console.log("[PF] Enter 감지 → isComposing:", e.isComposing, "keyCode:", e.keyCode);
+  if (e.isComposing || e.keyCode === 229) {
+    console.log("[PF] ⏭ 한글 조합 중(IME)이라 통과 — 마스킹 안 함");
+    return;
+  }
   const input = getInput();
-  if (!input || !(e.target === input || input.contains(e.target))) return;
+  const matched = !!input && (e.target === input || input.contains(e.target));
+  console.log("[PF] 입력창 발견:", !!input, "/ 이벤트 타깃 매치:", matched, "/ target:", e.target && e.target.tagName);
+  if (!input || !matched) { console.log("[PF] ⏭ 입력창 매치 실패 — 통과"); return; }
   if (internalSubmit) { internalSubmit = false; return; } // 우리가 보낸 Enter 통과
 
+  console.log("[PF] ✋ 가로채기 성공 → 마스킹 시작");
   e.preventDefault();
   e.stopImmediatePropagation();
   maskAndSend();

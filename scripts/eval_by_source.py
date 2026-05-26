@@ -21,8 +21,8 @@ from common import read_jsonl  # noqa: E402
 
 # 가제티어 (extension/lib/mask_service.js 와 동일) — 모델이 놓친 ORG/LOC 보강.
 _GAZETTEER = [
-    # 고정밀 기관 접미사만 (FP 큰 대학·의원·그룹·증권·연구원 제외)
-    (re.compile(r"[가-힣A-Za-z0-9]{2,}\s?(?:대학교|주식회사|병원|은행|연구소)"), "ORG"),
+    # 고정밀 기관 접미사만 (FP 큰 대학·의원·그룹·증권·연구원 제외). 연구실/연구센터는 소속 식별 정보라 포함.
+    (re.compile(r"[가-힣A-Za-z0-9]{2,}\s?(?:대학교|주식회사|병원|은행|연구소|연구실|연구센터)"), "ORG"),
     (re.compile(r"(?:㈜|\(주\))\s?[가-힣A-Za-z0-9]{2,}|[가-힣A-Za-z0-9]{2,}\s?(?:㈜|\(주\))"), "ORG"),
     (re.compile(r"[가-힣]{2,}(?:특별자치시|특별자치도|특별시|광역시)"), "LOCATION"),
 ]

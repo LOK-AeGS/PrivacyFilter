@@ -47,12 +47,48 @@ def apply_gazetteer(tokens: List[str], tags: List[str]) -> List[str]:
     return out
 
 
+def _spans_from_tags(tags: List[str]):
+    """어절 BIO → [(label, set(word_idx))]."""
+    out, cur = [], None
+    for i, t in enumerate(tags):
+        if t.startswith("B-"):
+            if cur:
+                out.append(cur)
+            cur = [t[2:], {i}]
+        elif t.startswith("I-") and cur and cur[0] == t[2:]:
+            cur[1].add(i)
+        else:
+            if cur:
+                out.append(cur)
+                cur = None
+    if cur:
+        out.append(cur)
+    return [(lbl, idxs) for lbl, idxs in out]
+
+
+def relaxed_counts(true_tags: List[str], pred_tags: List[str]):
+    """겹침+타입 매칭(경계/조사 무시 = 마스킹 기준) → (tp, fp, fn)."""
+    g = _spans_from_tags(true_tags)
+    p = _spans_from_tags(pred_tags)
+    matched = [False] * len(g)
+    tp = 0
+    for pl, ps in p:
+        for i, (gl, gs) in enumerate(g):
+            if not matched[i] and gl == pl and (ps & gs):
+                matched[i] = True
+                tp += 1
+                break
+    return tp, len(p) - tp, matched.count(False)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model-dir", required=True, type=Path)
     parser.add_argument("--data", required=True, type=Path)
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--gazetteer", action="store_true", help="모델 예측에 가제티어 보강 적용(시스템 평가)")
+    parser.add_argument("--relaxed", action="store_true", help="겹침+타입 매칭(경계/조사 무시) = 마스킹 기준 평가")
+    parser.add_argument("--onnx", action="store_true", help="int8 ONNX(model_quantized.onnx)로 추론(배포 실측)")
     args = parser.parse_args()
 
     import torch
@@ -63,8 +99,14 @@ def main() -> None:
     id2label = {i: l for i, l in enumerate(labels)}
 
     tokenizer = AutoTokenizer.from_pretrained(str(args.model_dir))
-    model = AutoModelForTokenClassification.from_pretrained(str(args.model_dir))
-    model.eval()
+    if args.onnx:
+        from optimum.onnxruntime import ORTModelForTokenClassification
+        model = ORTModelForTokenClassification.from_pretrained(
+            str(args.model_dir), file_name="model_quantized.onnx"
+        )
+    else:
+        model = AutoModelForTokenClassification.from_pretrained(str(args.model_dir))
+        model.eval()
 
     records = list(read_jsonl(args.data))
     print(f"모델: {args.model_dir.name}")
@@ -142,6 +184,30 @@ def main() -> None:
     pj = eval_group_label(records, "PROJ_N")
     print("-" * 90)
     print(f"{'ALL':<12} {len(records):>7,} {p:>8.4f} {r:>8.4f} {f:>8.4f} | {pe:>8.4f} {og:>8.4f} {lc:>8.4f} {pj:>8.4f}")
+
+    # 완화(마스킹 기준) 평가: 겹침+타입 매칭, 경계/조사 무시
+    if args.relaxed:
+        def rprf(recs: List[dict]):
+            tp = fp = fn = 0
+            for rr in recs:
+                a, b, c = relaxed_counts(rr["tags"], pred_map[id(rr)])
+                tp += a; fp += b; fn += c
+            P = tp / (tp + fp) if tp + fp else 0.0
+            R = tp / (tp + fn) if tp + fn else 0.0
+            return P, R, (2 * P * R / (P + R) if P + R else 0.0)
+
+        print("\n== 완화 매칭 (겹침+타입, 경계/조사 무시 = 마스킹 기준) ==")
+        print(f"{'source':<12} {'P':>8} {'R':>8} {'F1':>8}")
+        print("-" * 40)
+        for src in order:
+            if src in by_src:
+                P, R, F = rprf(by_src[src])
+                print(f"{src:<12} {P:>8.4f} {R:>8.4f} {F:>8.4f}")
+        P, R, F = rprf(records)
+        print("-" * 40)
+        print(f"{'ALL':<12} {P:>8.4f} {R:>8.4f} {F:>8.4f}")
+        P, R, F = rprf([r for r in records if r.get("source") != "naver"])
+        print(f"{'ALL-naver':<12} {P:>8.4f} {R:>8.4f} {F:>8.4f}  (손상 naver 제외)")
 
 
 if __name__ == "__main__":

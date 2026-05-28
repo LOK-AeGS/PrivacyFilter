@@ -277,6 +277,29 @@ node scripts/setup_extension.mjs
 iter2 는 KLUE 에 과적합돼 타 도메인 일반화(multi-source)가 약했다(특히 nikl 0.75).
 **iter11-base 는 KLUE+NIKL 로 재학습**해 KLUE 점수는 소폭(0.911→0.882) 양보하되 nikl 0.75→0.91, ORG/LOC/PROJ_N 전반 상승으로 multi-source 0.810→0.838 달성 — 브라우저 친화적 크기(110MB) 그대로 large(0.856)에 근접.
 
+### 정밀 평가 (배포 모델 · 정제 평가셋)
+
+표준 strict entity-F1 외에 **마스킹 실효 F1** 을 함께 측정한다 — 겹침+타입 매칭으로 경계/조사 일치 요구를 완화(예: 정답 `아이파크 아파트에서` vs 예측 `아이파크 아파트`는 strict 에선 오답이지만 마스킹 관점에선 PII 가 가려졌으므로 정답). naver 평가셋은 문서 아티팩트(저작권줄·바이라인 등) 141개를 `scripts/clean_naver_eval.py` 로 제거한 정제본 사용. 희귀어·OOD 문장은 보존(체리피킹 방지).
+
+| 도메인 | 문장 | strict F1 | **마스킹 F1** |
+|---|---:|---:|---:|
+| klue | 5,000 | 0.882 | **0.917** |
+| nikl | 2,000 | 0.918 | **0.932** |
+| naver (미학습 OOD) | 1,859 | 0.666 | 0.744 |
+| synthetic | 350 | 1.000 | 1.000 |
+| realworld | 30 | 0.845 | **0.915** |
+| **ALL** | 9,239 | 0.841 | **0.881** |
+| **ALL − naver** (학습 도메인) | 7,380 | — | **0.925** |
+
+**핵심 발견**
+- **마스킹 실효 F1 ≈ 0.92** (학습 도메인) — 마스킹 task 의 실제 성능. strict F1(0.84) 은 조사·경계 일치까지 엄격 요구해 마스킹과 직결되지 않음.
+- **int8 양자화 무손실** — 배포 int8 ONNX(110MB) vs fp32 = Δ −0.003. 경량화에 정확도 비용 없음.
+- **naver 는 정제 후에도 0.67/0.74** — 아티팩트가 아니라 진짜 OOD·희귀어 난도. 일반화 한계로 정직하게 제시.
+- **재학습(iter12, 4 epoch) 효과 없음** — 2 epoch 에서 수렴(0.838≈0.837), 동률이라 **iter11 유지**.
+- **시스템 = 모델 + 가제티어 + 정규식**: 가제티어(`대학교/주식회사/㈜·(주)/병원/은행/연구소/연구실/연구센터` + 고정밀 행정구역) 가 모델이 놓친 ORG/LOC 를 보강. 모델 우선 병합으로 F1 영향 −0.002 (무시 수준).
+
+**재현**: `python scripts/eval_by_source.py --model-dir onnx_models/klue_roberta_base_iter11_onnx_int8 --data data/eval/multisource_eval_clean.jsonl --onnx --relaxed`
+
 ## 평가 지표
 
 - **마스킹 정확도**: entity-F1 (seqeval, 엄격) / token-F1 (라벨만, 부분점수) / masking coverage (privacy recall)

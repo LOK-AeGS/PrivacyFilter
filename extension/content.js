@@ -116,6 +116,40 @@ async function maskAndSend(inputArg) {
 
   internalSubmit = true;
   triggerSend();
+
+  // 사용자 말풍선 즉시 복원 — ChatGPT DOM selector 변동에 견고하도록
+  // 마스킹 텍스트를 포함한 텍스트 노드를 직접 찾아 복원 (옵저버 selector 미스 대비 보조).
+  if (res && res.maskedText && res.spans && res.spans.length) {
+    restoreSentMessage(res.maskedText);
+  }
+}
+
+// 전송 직후 내 말풍선을 마스킹 텍스트(needle)로 찾아 가명→원본 복원.
+// [data-message-author-role] selector 변동/미사용 시에도 동작하는 content-based fallback.
+function restoreSentMessage(maskedText) {
+  const needle = (maskedText || "").trim();
+  if (!needle) return;
+  const sample = needle.slice(0, Math.min(30, needle.length));
+  const startedAt = performance.now();
+  const inputEl = getInput();
+  const tick = () => {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (inputEl && inputEl.contains(node)) continue;       // 입력창 내부는 건너뜀
+      if (!node.nodeValue || !node.nodeValue.includes(sample)) continue;
+      const parent = node.parentElement;
+      const root = parent && (
+        parent.closest('[data-message-author-role]') ||
+        parent.closest('article, li, [class*="message"], [class*="conversation"]') ||
+        parent.parentElement || parent
+      );
+      if (root) restoreMessage(root);   // 기존 로직 재사용(옵저버 disconnect + 멱등 가드)
+      return;
+    }
+    if (performance.now() - startedAt < 5000) setTimeout(tick, 150);
+  };
+  setTimeout(tick, 200);  // 전송 직후 DOM 추가 대기
 }
 
 // ───────────── 전송 이벤트 가로채기 ─────────────

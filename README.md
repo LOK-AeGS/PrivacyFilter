@@ -241,7 +241,10 @@ extension/
 # 1) 대용량 바이너리(.wasm/.onnx) 복원 — GitHub 100MB 제한으로 git 미포함
 node scripts/setup_extension.mjs
 # 2) chrome://extensions → 개발자 모드 → '압축해제된 확장 프로그램 로드' → extension/ 선택
+# 3) ChatGPT 가 이미 열려있던 탭이면 반드시 F5 — content script 는 페이지 로드 시 주입
 ```
+
+> 💡 **확장을 (재)로드한 직후 ChatGPT 탭을 F5 하지 않으면 가로채기가 동작하지 않는다.** F12 콘솔에 `[PrivacyFilter] content script 활성화` 로그가 떠야 정상.
 
 ### 검증 (헤드리스 Chrome, `_vendor/verify_browser.mjs`)
 실제 Chrome 에 확장을 로드해 `test.html` 추론 경로를 자동 검증한 결과:

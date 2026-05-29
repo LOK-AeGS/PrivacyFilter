@@ -117,11 +117,63 @@ async function maskAndSend(inputArg) {
   internalSubmit = true;
   triggerSend();
 
+  // 디버그: ChatGPT 서버 응답 지연 측정 (마스킹 vs 서버 latency 비교)
+  if (debug && res && res.latency) {
+    trackChatGPTLatency(performance.now(), res.latency.total_ms);
+  }
+
   // 사용자 말풍선 즉시 복원 — ChatGPT DOM selector 변동에 견고하도록
   // 마스킹 텍스트를 포함한 텍스트 노드를 직접 찾아 복원 (옵저버 selector 미스 대비 보조).
   if (res && res.maskedText && res.spans && res.spans.length) {
     restoreSentMessage(res.maskedText);
   }
+}
+
+// 전송 후 ChatGPT 응답 첫 토큰 도착·완료 시점을 측정해 디버그 콘솔에 기록.
+// 발표 시연용: 마스킹 오버헤드가 전체 응답 시간에서 차지하는 비중을 한눈에.
+function trackChatGPTLatency(sentAt, maskMs) {
+  const seen = new Set();
+  document.querySelectorAll('[data-message-author-role="assistant"]').forEach((e) => seen.add(e));
+  let firstByteAt = null;
+  let lastLen = 0;
+  let stableTicks = 0;
+  const tick = setInterval(() => {
+    const assistants = document.querySelectorAll('[data-message-author-role="assistant"]');
+    let target = null;
+    for (const el of assistants) {
+      if (!seen.has(el) && el.textContent && el.textContent.trim().length > 0) target = el;
+    }
+    if (target && !firstByteAt) {
+      firstByteAt = performance.now();
+      seen.add(target);
+      const ttfb = Math.round(firstByteAt - sentAt);
+      console.log(
+        `%c⚡ ChatGPT 응답 시작 — 마스킹 ${maskMs}ms + 전송→첫응답 ${ttfb}ms (총 ${maskMs + ttfb}ms)`,
+        "color:#10a37f;font-weight:bold",
+      );
+      lastLen = target.textContent.length;
+    } else if (firstByteAt && target) {
+      const currLen = target.textContent.length;
+      if (currLen === lastLen) {
+        stableTicks += 1;
+        if (stableTicks >= 4) { // 1초 안정화 = 응답 완료로 간주
+          const afterSend = Math.round(performance.now() - sentAt);
+          const total = maskMs + afterSend;
+          const overhead = ((maskMs / total) * 100).toFixed(1);
+          console.log(
+            `%c⚡ ChatGPT 응답 완료 — 총 ${total}ms (마스킹 ${maskMs}ms, 서버 ${afterSend}ms · 마스킹 오버헤드 ${overhead}%)`,
+            "color:#10a37f;font-weight:bold",
+          );
+          clearInterval(tick);
+        }
+      } else {
+        stableTicks = 0;
+        lastLen = currLen;
+      }
+    }
+  }, 250);
+  // 안전망: 60초 후 자동 정리
+  setTimeout(() => clearInterval(tick), 60000);
 }
 
 // 전송 직후 내 말풍선을 마스킹 텍스트(needle)로 찾아 가명→원본 복원.
